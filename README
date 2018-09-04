@@ -1,0 +1,26 @@
+The recommended way to install the package is through the cmd:
+
+sudo dpkg -i walabot-maker.deb
+
+
+The package installs the following files/paths:
+
+/usr/lib/libWalabotAPI.so  - The walabot library.
+/usr/include/WalabotAPI.h  - The walabot library header file.
+/var/lib/walabot/...       - The walabot database and configuration files. Give this path to Walabot_SetSettingsFolder.
+/usr/share/doc/walabot/... - Example code, licence and README.
+/usr/share/walabot/python/ - Python module wrapping Walabot API.
+/etc/udev/rules.d/...      - Special udev rule for walabot device, so it could be access without root priviliges.
+/usr/bin/walabot-diagnose  - Walabot diagnose utility for support (if needed).
+
+How to use the example code:
+
+Copy examples folder to a writable workarea and run buildAll.sh script:
+
+cp /usr/share/doc/walabot/examples/* .
+chmod +x *.sh
+./buildAll.sh
+
+That will build all the examples into binaries which you can run (Of course, don't forget to connect the Walabot device before running them!)
+
+Note: If you have older g++ version, you will probably have to edit the buildAll.sh script to add c++11 support.
