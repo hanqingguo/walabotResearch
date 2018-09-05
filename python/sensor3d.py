@@ -10,6 +10,7 @@ import io
 import PIL
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from skimage import measure, morphology
+import cv2
 
 if platform == 'win32':
     modulePath = join('C:/', 'Program Files', 'Walabot', 'WalabotSDK',
@@ -31,10 +32,15 @@ def PrintSensorTargets(targets):
     else:
         print('No Target Detected')
 
+def normlize(img):
+    img = (img-np.min(img)) / (np.max(img) - np.min(img))
+    return img
+
 
 def plot_3d(image, threshold=0):
     # Position the scan upright,
     # so the head of the patient would be at the top facing the camera
+
     p = image.transpose(2, 1, 0)
 
     verts, faces = measure.marching_cubes_classic(p, level=threshold)
@@ -54,7 +60,16 @@ def plot_3d(image, threshold=0):
     ax.set_ylim(0, p.shape[1])
     ax.set_zlim(0, p.shape[2])
 
-    plt.show()
+    buffer_ = io.BytesIO()
+    plt.savefig(buffer_, format="png", bbox_inches='tight', pad_inches=0)
+    buffer_.seek(0)
+
+    image = PIL.Image.open(buffer_)
+
+    ar = np.asarray(image)
+
+    return ar
+
 
 def SensorApp():
     # wlbt.SetArenaR - input parameters
@@ -92,7 +107,7 @@ def SensorApp():
     imgs = []
 
     start_time = time.time()
-    while time.time() - start_time < 30:
+    while time.time() - start_time < 60:
         appStatus, calibrationProcess = wlbt.GetStatus()
         # 5) Trigger: Scan(sense) according to profile and record signals
         # to be available for processing and retrieval.
@@ -109,45 +124,38 @@ def SensorApp():
         """
         # PrintSensorTargets(targets)
         img = np.array(rasterImage)
-        #plt.imshow(img, cmap=plt.cm.hot, interpolation='nearest')
-        #plt.show()
-        #imgs.append(img)
-        print(img.shape)
-        print("sizeX is {}".format(sizeX))
-        print("sizeY is {}".format(sizeY))
-        print("sizeZ is {}".format(sizeZ))
 
-        camp = plt.get_cmap("hot")
-        norm_img = (img - np.min(img)) / (np.max(img) - np.min(img)) # normalize all dimensions
-        for i in range(norm_img.shape[0]):
-            rgba_img = camp(norm_img[i, :, :])
-            rgb_img = np.delete(rgba_img, 3, -1)
+        # print(img.shape)
+        # print("sizeX is {}".format(sizeX))
+        # print("sizeY is {}".format(sizeY))
+        # print("sizeZ is {}".format(sizeZ))
 
-            plot_3d(rgb_img, 0.5)
+        img = normlize(img)
 
-            plt.show()
+        frame = plot_3d(img, 0.8)
 
+        cv2.imshow("frame", frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-        # rgba_img = camp(img[0, :, :])
+        # camp = plt.get_cmap("hot")
+        # norm_img = (img - np.min(img)) / (np.max(img) - np.min(img)) # normalize all dimensions
+        # for i in range(norm_img.shape[0]):
+        #     rgba_img = camp(norm_img[i, :, :])
+        #     rgb_img = np.delete(rgba_img, 3, -1)
+        #     print("shape of single rgb_img is: {}".format(rgb_img.shape))
         #
+        #     plot_3d(rgb_img, 0.5)
         #
-        # plt.imshow(img[0, :, :])
-        # buffer_ = io.BytesIO()
-        # plt.savefig(buffer_, format="png", bbox_inches='tight', pad_inches=0)
-        # buffer_.seek(0)
-        #
-        # image = PIL.Image.open(buffer_)
-        #
-        # ar = np.asarray(image)
-        #
-        # print(ar.shape)
-        # plt.show()
+        #     plt.show()
+
 
     # 7) Stop and Disconnect.
 
     wlbt.Stop()
     wlbt.Disconnect()
     print('Terminate successfully')
+    cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
