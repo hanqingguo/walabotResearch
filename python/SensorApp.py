@@ -79,7 +79,17 @@ def SensorApp():
         """
         #PrintSensorTargets(targets)
         img = np.array(rasterImage)
-        plt.imshow(img, cmap=plt.cm.hot, interpolation='nearest')
+        plt.imshow(img, cmap=plt.cm.hot, interpolation='nearest', extent=[-90,90,200,0])
+        # Thanks https://stackoverflow.com/questions/18696122/change-values-on-matplotlib-imshow-graph-axis
+        # answer how to change plt.imshow axis
+        plt.xlabel("Phi(degree)")
+
+
+        #print(x_min, x_max)
+
+        plt.ylabel("R(cm)")
+        #plt.yscale(2)
+
         plt.show()
         imgs.append(img)
         print(img.shape)

@@ -38,21 +38,21 @@ def normlize(img):
 
 
 def plot_3d(image, threshold=0):
-    # Position the scan upright,
-    # so the head of the patient would be at the top facing the camera
+
 
     p = image.transpose(2, 1, 0)
 
-    verts, faces = measure.marching_cubes_classic(p, level=threshold)
+    print(p.shape)
 
-    # print(verts, faces)
+    verts, faces = measure.marching_cubes_classic(p, level=threshold)
+    print(verts.shape, faces.shape)
+
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
 
-    # Fancy indexing: `verts[faces]` to generate a collection of triangles
     mesh = Poly3DCollection(verts[faces], alpha=0.70)
-    face_color = [0.45, 0.45, 0.75]
+    face_color = [0.8, 0.45, 0.75]
     mesh.set_facecolor(face_color)
     ax.add_collection3d(mesh)
 
@@ -60,13 +60,24 @@ def plot_3d(image, threshold=0):
     ax.set_ylim(0, p.shape[1])
     ax.set_zlim(0, p.shape[2])
 
+    current_xticks = ax.get_xticks()
+    print(current_xticks)
+    ax.set_xticks([0, 40, 80, 120, 160, 200])
+    ax.set_xlabel("Direct Distance (cm)")
+    ax.set_ylabel("Phi (degree)")
+    ax.set_zlabel("Theta (degree)")
+
+
+
     buffer_ = io.BytesIO()
-    plt.savefig(buffer_, format="png", bbox_inches='tight', pad_inches=0)
+    plt.savefig(buffer_, format="png", bbox_inches='tight', pad_inches=1)
     buffer_.seek(0)
 
     image = PIL.Image.open(buffer_)
 
     ar = np.asarray(image)
+    plt.close()
+
 
     return ar
 
@@ -103,8 +114,7 @@ def SensorApp():
         wlbt.StartCalibration()
         while wlbt.GetStatus()[0] == wlbt.STATUS_CALIBRATING:
             wlbt.Trigger()
-    sliceDepths = []
-    imgs = []
+
 
     start_time = time.time()
     while time.time() - start_time < 60:
@@ -113,7 +123,6 @@ def SensorApp():
         # to be available for processing and retrieval.
         wlbt.Trigger()
         # 6) Get action: retrieve the last completed triggered recording
-        targets = wlbt.GetSensorTargets()
         # rasterImage, _, _, sliceDepth, power = wlbt.GetRawImageSlice()
         # PrintSensorTargets(targets)
         rasterImage, sizeX, sizeY, sizeZ, power = wlbt.GetRawImage()
