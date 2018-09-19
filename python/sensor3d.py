@@ -11,6 +11,7 @@ import PIL
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from skimage import measure, morphology
 import cv2
+import os
 
 if platform == 'win32':
     modulePath = join('C:/', 'Program Files', 'Walabot', 'WalabotSDK',
@@ -21,6 +22,27 @@ elif platform.startswith('linux'):
 wlbt = load_source('WalabotAPI', modulePath)
 wlbt.Init()
 
+current_dir = os.path.dirname(os.path.realpath(__file__))
+training_dir = os.path.join(os.path.dirname(current_dir), 'training')
+
+
+"""
+
+current_dir = /home/hanqing/walabot_research/python
+training_dir = /home/hanqing/walabot_research/training
+
+"""
+
+activities = ['walk', 'run', 'sit-to-stand', 'stand-to-sit', 'fall', 'jump']
+
+idx = 0
+video_name = '1'
+
+training_path = os.path.join(training_dir, activities[idx])
+if activities[idx] not in os.listdir(training_dir):
+    os.mkdir(training_path, mode=0o777)
+
+video_path = os.path.join(training_path, '1.avi')
 
 def PrintSensorTargets(targets):
     system('cls' if platform == 'win32' else 'clear')
@@ -42,10 +64,10 @@ def plot_3d(image, threshold=0):
 
     p = image.transpose(2, 1, 0)
 
-    print(p.shape)
+    #print(p.shape)
 
     verts, faces = measure.marching_cubes_classic(p, level=threshold)
-    print(verts.shape, faces.shape)
+    #print(verts.shape, faces.shape)
 
 
     fig = plt.figure()
@@ -61,8 +83,8 @@ def plot_3d(image, threshold=0):
     ax.set_zlim(0, p.shape[2])
 
     current_xticks = ax.get_xticks()
-    print(current_xticks)
-    ax.set_xticks([0, 40, 80, 120, 160, 200])
+    #print(current_xticks)
+    #ax.set_xticks([0, 40, 80, 120, 160, 200])
     ax.set_xlabel("Direct Distance (cm)")
     ax.set_ylabel("Phi (degree)")
     ax.set_zlabel("Theta (degree)")
@@ -117,6 +139,8 @@ def SensorApp():
 
 
     start_time = time.time()
+    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+    out = cv2.VideoWriter(video_path, fourcc, 10.0, (703, 576))
     while time.time() - start_time < 60:
         appStatus, calibrationProcess = wlbt.GetStatus()
         # 5) Trigger: Scan(sense) according to profile and record signals
@@ -143,24 +167,17 @@ def SensorApp():
 
         frame = plot_3d(img, 0.8)
 
+        print("frame.shape is {}".format(frame.shape))
+        #print(frame)
+
+        out.write(frame)
         cv2.imshow("frame", frame)
+
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-        # camp = plt.get_cmap("hot")
-        # norm_img = (img - np.min(img)) / (np.max(img) - np.min(img)) # normalize all dimensions
-        # for i in range(norm_img.shape[0]):
-        #     rgba_img = camp(norm_img[i, :, :])
-        #     rgb_img = np.delete(rgba_img, 3, -1)
-        #     print("shape of single rgb_img is: {}".format(rgb_img.shape))
-        #
-        #     plot_3d(rgb_img, 0.5)
-        #
-        #     plt.show()
-
-
     # 7) Stop and Disconnect.
-
+    out.release()
     wlbt.Stop()
     wlbt.Disconnect()
     print('Terminate successfully')
