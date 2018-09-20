@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-cap = cv2.VideoCapture('../output.avi')
+cap = cv2.VideoCapture('output.avi')
 print(cap.get(3))
 
 # Define the codec and create VideoWriter object

@@ -33,16 +33,16 @@ training_dir = /home/hanqing/walabot_research/training
 
 """
 
-activities = ['walk', 'run', 'sit-to-stand', 'stand-to-sit', 'fall', 'jump']
+activities = ['walk', 'sit-to-stand', 'stand-to-sit', 'fall_down', 'jump']
 
-idx = 0
-video_name = '1'
+idx = 1
+video_name = '6'
 
 training_path = os.path.join(training_dir, activities[idx])
 if activities[idx] not in os.listdir(training_dir):
     os.mkdir(training_path, mode=0o777)
 
-video_path = os.path.join(training_path, '1.avi')
+video_path = os.path.join(training_path, '{}.avi'.format(video_name))
 
 def PrintSensorTargets(targets):
     system('cls' if platform == 'win32' else 'clear')
@@ -59,30 +59,42 @@ def normlize(img):
     return img
 
 
-def plot_3d(image, threshold=0):
+def plot_3d(image, minInCm, resInCm, minPhiInDegrees, resPhiInDegrees, minThetaIndegrees, resThetaIndegrees, threshold=0):
 
-
+    # stack sliced image to upright
     p = image.transpose(2, 1, 0)
-
-    #print(p.shape)
 
     verts, faces = measure.marching_cubes_classic(p, level=threshold)
     #print(verts.shape, faces.shape)
 
+    #print(verts, faces)
+    #print(verts.shape, faces.shape)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
 
+    # Make change axis from 3d volume indexes , to more make sense data
+    # (0,100) => (1,200)  R(cm)
+    # (0,61)  => (-90,90) Phi(degree)
+    # (0,9)   => (-20,20) Theta(degree)
+
+    verts[:,0] = minInCm + verts[:,0] * resInCm
+    verts[:,1] = verts[:,1] * resPhiInDegrees + minPhiInDegrees
+    verts[:,2] = verts[:,2] * resThetaIndegrees + minThetaIndegrees
+
     mesh = Poly3DCollection(verts[faces], alpha=0.70)
+    #print(mesh)
+
     face_color = [0.8, 0.45, 0.75]
     mesh.set_facecolor(face_color)
     ax.add_collection3d(mesh)
 
-    ax.set_xlim(0, p.shape[0])
-    ax.set_ylim(0, p.shape[1])
-    ax.set_zlim(0, p.shape[2])
+    ax.set_xlim(minInCm, p.shape[0]*resInCm)
+    ax.set_ylim(minPhiInDegrees, p.shape[1]*resPhiInDegrees + minPhiInDegrees)
+    ax.set_zlim(minThetaIndegrees, p.shape[2]*resThetaIndegrees + minThetaIndegrees)
 
     current_xticks = ax.get_xticks()
+
     #print(current_xticks)
     #ax.set_xticks([0, 40, 80, 120, 160, 200])
     ax.set_xlabel("Direct Distance (cm)")
@@ -110,7 +122,7 @@ def SensorApp():
     # wlbt.SetArenaTheta - input parameters
     minThetaIndegrees, maxThetaIndegrees, resThetaIndegrees = -20, 20, 5
     # wlbt.SetArenaPhi - input parameters
-    minPhiInDegrees, maxPhiInDegrees, resPhiInDegrees = -90, 90, 3
+    minPhiInDegrees, maxPhiInDegrees, resPhiInDegrees = -60, 60, 3
     # Set MTI mode
     mtiMode = False
     # Configure Walabot database install location (for windows)
@@ -140,8 +152,8 @@ def SensorApp():
 
     start_time = time.time()
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    out = cv2.VideoWriter(video_path, fourcc, 10.0, (703, 576))
-    while time.time() - start_time < 60:
+    out = cv2.VideoWriter(video_path, fourcc, 4.0, (703, 576))
+    while time.time() - start_time < 15:
         appStatus, calibrationProcess = wlbt.GetStatus()
         # 5) Trigger: Scan(sense) according to profile and record signals
         # to be available for processing and retrieval.
@@ -158,16 +170,11 @@ def SensorApp():
         # PrintSensorTargets(targets)
         img = np.array(rasterImage)
 
-        # print(img.shape)
-        # print("sizeX is {}".format(sizeX))
-        # print("sizeY is {}".format(sizeY))
-        # print("sizeZ is {}".format(sizeZ))
-
         img = normlize(img)
 
-        frame = plot_3d(img, 0.8)
+        frame = plot_3d(img, minInCm, resInCm, minPhiInDegrees, resPhiInDegrees, minThetaIndegrees, resThetaIndegrees,threshold=0.8)
 
-        print("frame.shape is {}".format(frame.shape))
+        #print("frame.shape is {}".format(frame.shape))
         #print(frame)
 
         out.write(frame)
