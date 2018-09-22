@@ -35,8 +35,8 @@ training_dir = /home/hanqing/walabot_research/training
 
 activities = ['walk', 'sit-to-stand', 'stand-to-sit', 'fall_down', 'jump']
 
-idx = 1
-video_name = '6'
+idx = 2
+video_name = '2'
 
 training_path = os.path.join(training_dir, activities[idx])
 if activities[idx] not in os.listdir(training_dir):
@@ -152,8 +152,9 @@ def SensorApp():
 
     start_time = time.time()
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    out = cv2.VideoWriter(video_path, fourcc, 4.0, (703, 576))
-    while time.time() - start_time < 15:
+    out = cv2.VideoWriter(video_path, fourcc, 1.0, (703, 576))
+    frame_count = 0
+    while frame_count < 15:
         appStatus, calibrationProcess = wlbt.GetStatus()
         # 5) Trigger: Scan(sense) according to profile and record signals
         # to be available for processing and retrieval.
@@ -177,8 +178,10 @@ def SensorApp():
         #print("frame.shape is {}".format(frame.shape))
         #print(frame)
 
+
         out.write(frame)
         cv2.imshow("frame", frame)
+        frame_count += 1
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
