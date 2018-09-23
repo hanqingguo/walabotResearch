@@ -27,9 +27,18 @@ class Rescale(object):
 
         new_h, new_w = int(new_h), int(new_w)
 
-        img = transform.resize(image, (new_h, new_w))
+        img = transform.resize(image, (new_h, new_w), mode='constant', anti_aliasing=True)
         # h and w are swapped for landmarks because for images,
         # x and y axes are axis 1 and 0 respectively
 
         return img
+
+class ToTensor(object):
+
+    def __call__(self, image):
+        # swap color axis because
+        # numpy image: H x W x C
+        # torch image: C X H X W
+        image = image.transpose((2,0,1))
+        return image
 
