@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-cap = cv2.VideoCapture('../../training/stand-to-sit/2.avi')
+cap = cv2.VideoCapture('../../training/stand-to-sit/1.avi')
 # print(cap.get(3))
 #
 # # Define the codec and create VideoWriter object

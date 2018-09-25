@@ -14,6 +14,7 @@ import copy
 import cv2
 from python.utils import *
 
+
 def train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler, num_epoch=25):
     pass
 

@@ -27,7 +27,8 @@ class Rescale(object):
 
         new_h, new_w = int(new_h), int(new_w)
 
-        img = transform.resize(image, (new_h, new_w), mode='constant', anti_aliasing=True)
+        #img = transform.resize(image, (new_h, new_w), mode='constant', anti_aliasing=True)
+        img = transform.resize(image, (new_h, new_w), mode='constant')
         # h and w are swapped for landmarks because for images,
         # x and y axes are axis 1 and 0 respectively
 

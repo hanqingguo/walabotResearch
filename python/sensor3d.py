@@ -25,18 +25,17 @@ wlbt.Init()
 current_dir = os.path.dirname(os.path.realpath(__file__))
 training_dir = os.path.join(os.path.dirname(current_dir), 'training')
 
-
 """
 
-current_dir = /home/hanqing/walabot_research/python
-training_dir = /home/hanqing/walabot_research/training
+current_dir  = /home/hanqing/walabot_Research/walabotResearch/python
+training_dir = /home/hanqing/walabot_Research/walabotResearch/training
 
 """
 
 activities = ['walk', 'sit-to-stand', 'stand-to-sit', 'fall_down', 'jump']
 
-idx = 2
-video_name = '2'
+idx = 4
+video_name = '30'
 
 training_path = os.path.join(training_dir, activities[idx])
 if activities[idx] not in os.listdir(training_dir):
@@ -92,8 +91,6 @@ def plot_3d(image, minInCm, resInCm, minPhiInDegrees, resPhiInDegrees, minThetaI
     ax.set_xlim(minInCm, p.shape[0]*resInCm)
     ax.set_ylim(minPhiInDegrees, p.shape[1]*resPhiInDegrees + minPhiInDegrees)
     ax.set_zlim(minThetaIndegrees, p.shape[2]*resThetaIndegrees + minThetaIndegrees)
-
-    current_xticks = ax.get_xticks()
 
     #print(current_xticks)
     #ax.set_xticks([0, 40, 80, 120, 160, 200])
@@ -180,11 +177,11 @@ def SensorApp():
 
 
         out.write(frame)
-        cv2.imshow("frame", frame)
+        #cv2.imshow("frame", frame)
         frame_count += 1
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
 
     # 7) Stop and Disconnect.
     out.release()
