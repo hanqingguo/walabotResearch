@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-cap = cv2.VideoCapture('../../training/stand-to-sit/1.avi')
+cap = cv2.VideoCapture('../../training_backup/training/stand-to-sit/5.avi')
 # print(cap.get(3))
 #
 # # Define the codec and create VideoWriter object
@@ -14,14 +14,9 @@ while(cap.isOpened()):
     n = n + 1
     print(n)
     if ret==True:
-        frame = cv2.flip(frame,0)
-        # write the flipped frame
-        print(frame.shape)
-        #out.write(frame)
 
         cv2.imshow('frame',frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        cv2.waitKey(1000)
     else:
         break
 
