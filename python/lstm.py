@@ -23,11 +23,14 @@ class RNN(nn.Module):
         c_0 = c_0.to(device)
         out, _ = self.lstm(inputs,(h_0,c_0))
         out = out[-1, :, :]
-        out = self.classifier(out)
+        #print(out.size())
+
+        #out = self.classifier(out)
+
         return out
 
 
-def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, setting, classTable, num_epochs=100):
+def train_model(model, cnn_type, num_feature, criterion, optimizer, exp_lr_scheduler,current_dir, setting, classTable, num_epochs=100):
     """
 
     :param model: lstm model
@@ -44,17 +47,24 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, setti
     best_loss = 10000
     correct_count = 0
     loss_list = []
+    device = torch.device("cuda:0")
+    model_ft = getattr(models, cnn_type)(pretrained=True)
+    num_ftrs = model_ft.fc.in_features
+    model_ft.fc = nn.Linear(num_ftrs, num_feature)
+    model_ft = model_ft.to(device)
 
     for epoch in range(num_epochs):
         print('Epoch {}/{}'.format(epoch, num_epochs-1))
         print("-" * 20)
         #exp_lr_scheduler.step()
-        model.train()
+
         running_loss = 0.0
         classname, selected_video = select_video(current_dir, training=True)
-        inputs = getFeature(selected_video, setting['cnn_model'], setting['num_features'], setting['cut_frame'])
+        inputs = getFeature(selected_video, model_ft, setting['num_features'], setting['cut_frame'])
         inputs = inputs.unsqueeze(1)
+        #print(inputs)
         optimizer.zero_grad()
+        model.train()
 
         with torch.set_grad_enabled(True):
             output = model(inputs)
@@ -63,12 +73,18 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, setti
             classTensor = torch.Tensor([classTable[classname]])
             # classTensor = mapClassToTensor(classTable, classname)
             classTensor = classTensor.to(device)
+            print("OUTPUT IS : \n\n{}\n\n".format(output))
+            print("OUTPUT SIZE IS: \n\n{}\n\n".format(output.size()))
+            print("ClassTensor IS : \n\n{}\n\n".format(classTensor))
+            print("ClassTensor SIZE IS: \n\n{}\n\n".format(classTensor.size()))
+            #print(classTensor)
             print("output is: \n{}\n"
                   "pred is: \n{}\n"
                   "class is: \n{}\n".format(output, pred.item(),classTensor.item()))
             if (pred.item() == classTensor.item()):
                 correct_count += 1
             loss = criterion(output, classTensor.long())
+            print(loss)
             loss.backward()
             optimizer.step()
         running_loss += loss.item()
@@ -114,7 +130,7 @@ def select_video(current_dir, training=True):
     :return: class name of the video, and the real path of the video
     """
     if(training):
-        video_dir = os.path.join(os.path.dirname(current_dir), 'training')
+        video_dir = os.path.join(os.path.dirname(current_dir), 'training_backup/training')
     else:
         video_dir = os.path.join(os.path.dirname(current_dir), 'testing')
     classes = os.listdir(video_dir)
@@ -133,21 +149,15 @@ def select_video(current_dir, training=True):
 if __name__ == '__main__':
     device = torch.device("cuda:0")
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    # training_dir = os.path.join(os.path.dirname(current_dir), 'training')
-    # testing_dir = os.path.join(os.path.dirname(current_dir), 'testing')
-    # label = 'walk'
-    # idx = '1'
-    # video_format = '.avi'
-    # video_name = idx+video_format
-    # video_path = os.path.join(training_dir, label, video_name)
+
 
     setting = {'cnn_model': 'resnet18',
-               'sequence_num': 1,
-               'hidden_size': 5,
+               'sequence_num': 10,
+               'hidden_size': 4,
                'num_layers': 1,
                'num_directions': 1,
                'num_features': 100,
-               'cut_frame': 1}
+               'cut_frame': 10}
     """
     sequence_num: how many frame in the sequence
     hidden_size: hidden_size is hidden state dimension
@@ -155,7 +165,7 @@ if __name__ == '__main__':
     num_directions: 2 is bidirection, 1 is only one direction
     """
     #classTable = {'walk':0, 'sit-to-stand':1, 'stand-to-sit':2, 'fall_down':3, 'jump':4}
-    classTable = {'walk':0, 'sit-to-stand':1}
+    classTable = {'walk':0, 'sit-to-stand':1, 'stand-to-sit':2, 'jump':3}
 
     model = RNN(input_size=setting['num_features'], hidden_size=setting['hidden_size'],
                 num_layers=setting['num_layers'], num_class=len(classTable))
@@ -169,8 +179,8 @@ if __name__ == '__main__':
 
     select_class, selected_video = select_video(current_dir)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(), lr=0.2, momentum=0.9)
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
 
-    model = train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, setting, classTable, num_epochs=100)
+    model = train_model(model, setting['cnn_model'], setting['num_features'], criterion, optimizer, exp_lr_scheduler,current_dir, setting, classTable, num_epochs=10)
 
