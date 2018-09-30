@@ -29,7 +29,6 @@ class RNN(nn.Module):
 
         return out
 
-
 def train_model(model, cnn_type, num_feature, criterion, optimizer, exp_lr_scheduler,current_dir, setting, classTable, num_epochs=1000):
     """
 
@@ -49,6 +48,7 @@ def train_model(model, cnn_type, num_feature, criterion, optimizer, exp_lr_sched
     loss_list = []
     device = torch.device("cuda:0")
     model_ft = getattr(models, cnn_type)(pretrained=True)
+    #print(model_ft.parameters)
     num_ftrs = model_ft.fc.in_features
     model_ft.fc = nn.Linear(num_ftrs, num_feature)
     model_ft = model_ft.to(device)
@@ -62,7 +62,8 @@ def train_model(model, cnn_type, num_feature, criterion, optimizer, exp_lr_sched
         classname, selected_video = select_video(current_dir, training=True)
         inputs = getFeature(selected_video, model_ft, setting['num_features'], setting['cut_frame'])
         inputs = inputs.unsqueeze(1)
-        #print(inputs)
+        # inputs.size() = (num_frame, num_features)
+        #print(inputs, inputs.size())
         model.zero_grad()
         #model.train()
 
@@ -84,7 +85,9 @@ def train_model(model, cnn_type, num_feature, criterion, optimizer, exp_lr_sched
             if (pred.item() == classTensor.item()):
                 correct_count += 1
             loss = criterion(output, classTensor.long())
-            print(loss)
+            # for i,param in enumerate(model.parameters()):
+            #     print(i, param, param.size())
+
             loss.backward()
             optimizer.step()
         running_loss += loss.item()
@@ -122,42 +125,19 @@ def mapClassToTensor(classTable, classname):
 
     return classTensor
 
-
-def select_video(current_dir, training=True):
-    """
-
-    :param current_dir: the path upper training
-    :return: class name of the video, and the real path of the video
-    """
-    if(training):
-        video_dir = os.path.join(os.path.dirname(current_dir), 'training_backup/training')
-    else:
-        video_dir = os.path.join(os.path.dirname(current_dir), 'testing')
-    classes = os.listdir(video_dir)
-    random_class = np.random.randint(len(classes)) # get random class folder
-    classname = classes[random_class]
-    video_list = os.listdir(os.path.join(video_dir,classname))
-    random_video = np.random.randint(len(video_list))
-    selected_video = os.path.join(video_dir, classname, video_list[random_video])
-
-
-    return classname, selected_video
-
-
-
-
 if __name__ == '__main__':
     device = torch.device("cuda:0")
     current_dir = os.path.dirname(os.path.realpath(__file__))
-
+    #/home/hanqing/walabot_research/python
+    video_dir = video_dir = os.path.join(os.path.dirname(current_dir), 'test_dataset')
 
     setting = {'cnn_model': 'resnet18',
-               'sequence_num': 15,
-               'hidden_size': 2,
+               'sequence_num': 2,
+               'hidden_size': 6,
                'num_layers': 1,
                'num_directions': 1,
-               'num_features': 100,
-               'cut_frame': 15}
+               'num_features': 1,
+               'cut_frame': 2}
     """
     sequence_num: how many frame in the sequence
     hidden_size: hidden_size is hidden state dimension
@@ -166,16 +146,16 @@ if __name__ == '__main__':
     """
     #classTable = {'walk':0, 'sit-to-stand':1, 'stand-to-sit':2, 'fall_down':3, 'jump':4}
     #classTable = {'walk':0, 'sit-to-stand':1, 'stand-to-sit':2, 'jump':3}
-    classTable = {'stand-to-sit': 0, 'jump': 1}
+    classTable = {'sit-to-stand': 0, 'walk': 1}
 
     model = RNN(input_size=setting['num_features'], hidden_size=setting['hidden_size'],
                 num_layers=setting['num_layers'], num_class=len(classTable))
     model = model.to(device)
 
-    select_class, selected_video = select_video(current_dir)
+    #select_class, selected_video = select_video(current_dir)
     criterion = nn.NLLLoss()
     optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
 
-    model = train_model(model, setting['cnn_model'], setting['num_features'], criterion, optimizer, exp_lr_scheduler,current_dir, setting, classTable, num_epochs=100)
+    model = train_model(model, setting['cnn_model'], setting['num_features'], criterion, optimizer, exp_lr_scheduler,current_dir, setting, classTable, num_epochs=1000)
 

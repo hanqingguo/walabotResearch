@@ -15,14 +15,11 @@ import cv2
 from python.utils import *
 
 
-def train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler, num_epoch=25):
-    pass
-
 def getFeature(input_video, model_ft, num_feature, cut_frame):
     """
 
     :param input_video: frames feed to model
-    :param model_type:  transfer learning model type, for example: resnet18,vgg16 and so on
+    :param model_ft:  cnn_models initialized before
     :param num_feature: num of feature you want to output for 1 frame
     :param cut_frame: num of frame to be cut in original video
     :return: stack of features,
@@ -38,31 +35,66 @@ def getFeature(input_video, model_ft, num_feature, cut_frame):
 
     while (cap.isOpened()) and n<cut_frame:
         _, frame = cap.read()
-        #print(frame.shape)
-        # cv2.imshow('frame',frame)
-        # cv2.waitKey(1000)
         rescale = Rescale((224, 224))
         frame = rescale(frame)
-
-        # cv2.imshow('frame', frame)
-        # cv2.waitKey(1000)
-
-        #print(frame.shape)
         toTensor = ToTensor()
         frame = toTensor(frame)          #        numpy image: H x W x C
                                          #        torch image: C X H X W
-        #print(frame.shape)
         frame = torch.from_numpy(frame)  # ndarray to tensor
         frame = frame.unsqueeze(0)       # from (3,224,224) => (1,3,224,224)
         frame = frame.to(device)
 
         feature = model_ft(frame.float())
-        #print(feature.size())
-        #exit(0)
+        # feature.size() = (1, num_feature)
         features = torch.cat((features, feature),0)
         n = n + 1
 
     return features[1:,:]               # return everything except the very begining random feature
+                                        # return size = (cut_frame, num_feature)
+
+def getFeature2(input_video, model_ft, cut_frame):
+    """
+
+    This function works for lstm_useCNN_feature,
+    The difference is remove num_feature, because the last layer of model_ft is pooling layer,
+    rather than customized fc layer, the num_feature will keep to 512
+
+    :param input_video: frames feed to model
+    :param model_ft:  CNN object in lstm_useCNN_feature.py
+    :param num_feature: num of feature you want to output for 1 frame
+    :param cut_frame: num of frame to be cut in original video
+    :return: stack of features,
+        suppose one frame has output feature (1,100)
+        then input_video has 10 frames, then output shape is (10,100)
+        use torch.cat to concatenate features
+    """
+    device = torch.device("cuda:0")
+    cap = cv2.VideoCapture(input_video)
+    n = 0
+    features = torch.rand(1, 512)       # will be delete this feature at return
+    features = features.to(device)
+
+    while (cap.isOpened()) and n<cut_frame:
+        _, frame = cap.read()
+        rescale = Rescale((224, 224))
+        frame = rescale(frame)
+        toTensor = ToTensor()
+        frame = toTensor(frame)          #        numpy image: H x W x C
+                                         #        torch image: C X H X W
+        frame = torch.from_numpy(frame)  # ndarray to tensor
+        frame = frame.unsqueeze(0)       # from (3,224,224) => (1,3,224,224)
+        frame = frame.to(device)
+
+        feature = model_ft(frame.float())
+        # feature.size() = (1, 512, 1, 1)
+        feature = feature.squeeze(2)
+        feature = feature.squeeze(2)
+        # feature.size() = (1, 512)
+        features = torch.cat((features, feature),0)
+        n = n + 1
+
+    return features[1:,:]               # return everything except the very begining random feature
+                                        # return size = (cut_frame, num_feature)
 
 
 

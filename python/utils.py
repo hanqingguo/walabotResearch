@@ -1,5 +1,7 @@
 from skimage import transform
-
+import os
+import numpy as np
+from random import shuffle
 
 class Rescale(object):
     """
@@ -42,4 +44,64 @@ class ToTensor(object):
         # torch image: C X H X W
         image = image.transpose((2,0,1))
         return image
+
+
+def select_video(current_dir, training=True):
+    """
+
+    :param current_dir: the path upper training
+    :return: class name of the video, and the real path of the video
+    """
+    if(training):
+        video_dir = os.path.join(os.path.dirname(current_dir), 'training')
+    else:
+        video_dir = os.path.join(os.path.dirname(current_dir), 'testing')
+    classes = os.listdir(video_dir)
+    random_class = np.random.randint(len(classes)) # get random class folder
+    classname = classes[random_class]
+    video_list = os.listdir(os.path.join(video_dir,classname))
+    random_video = np.random.randint(len(video_list))
+    selected_video = os.path.join(video_dir, classname, video_list[random_video])
+
+
+    return classname, selected_video
+
+def video_loader(current_dir, training=True):
+    """
+
+    :param current_dir: the path upper training
+    :param training: True if training
+    :return: list
+            ['walk 4.avi', 'walk 3.avi', 'stand-to-sit 21.avi', 'stand-to-sit 25.avi', ..., 'walk 18.avi', 'jump 24.avi']
+    """
+    if(training):
+        video_dir = os.path.join(os.path.dirname(current_dir), 'test_dataset')
+    else:
+        video_dir = os.path.join(os.path.dirname(current_dir), 'testing')
+
+
+    classes = os.listdir(video_dir)
+    ordered_class_list = []
+
+    for cls in classes:
+        #if cls not in random_order_dict:
+        video_list = os.listdir(os.path.join(video_dir, cls))
+        for video in video_list:
+            video = cls+" "+video
+            ordered_class_list.append(video)
+    shuffle(ordered_class_list)
+
+    return ordered_class_list
+
+current_dir = os.path.dirname(os.path.realpath(__file__))
+random_order_list = video_loader(current_dir)
+
+
+
+video_dir = os.path.join(os.path.dirname(current_dir), 'test_dataset')
+
+# Iter all dataset
+for value in random_order_list:
+    [cls, video] = value.split()
+    video_path = os.path.join(video_dir, cls, video)
 
