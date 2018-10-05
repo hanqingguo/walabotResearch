@@ -17,6 +17,7 @@ class Rescale(object):
 
     def __call__(self, image):
 
+        #print(image)
         h, w = image.shape[:2]
 
         if isinstance(self.output_size, int):

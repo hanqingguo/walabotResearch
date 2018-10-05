@@ -111,7 +111,7 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
                 _, pred = torch.max(output, 1)
                 print("pred is: \n{}\n"
                       "target is: \n{}\n".format(pred, target_list))
-                #print("output is: \n{}\n".format(output))
+                print("output is: \n{}\n".format(output))
                 #print("Target SIZE IS: \n\n{}\n\n".format(target.size()))   # target.size() = [sequence_num]
 
                 #print("OUTPUT SIZE IS: \n\n{}\n\n".format(output.size()))   # output.size() = [sequence_num, act_class]
@@ -236,7 +236,7 @@ def activity_to_ix():
     :return: dictionary
     """
     activity_ix = {}
-    with open(os.path.join(os.path.dirname(current_dir), 'training_backup/label.csv')) as f:
+    with open(os.path.join(os.path.dirname(current_dir), 'training_backup/label_new.csv')) as f:
         head = f.readline()
         lines = f.readlines()
         for line in lines:
@@ -273,12 +273,12 @@ if __name__ == '__main__':
 
 
     setting = {'cnn_model': 'resnet18',
-               'sequence_num': 15,
+               'sequence_num': 8,
                'hidden_size': 6,
                'num_layers': 1,
                'num_directions': 1,
                'num_features': 512,
-               'cut_frame': 15}
+               'cut_frame': 8}
     """
     sequence_num: how many frame in the sequence
     hidden_size: hidden_size is hidden state dimension
