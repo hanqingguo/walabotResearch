@@ -17,6 +17,7 @@ class Rescale(object):
 
     def __call__(self, image):
 
+        #print(image)
         h, w = image.shape[:2]
 
         if isinstance(self.output_size, int):
@@ -66,16 +67,40 @@ def select_video(current_dir, training=True):
 
     return classname, selected_video
 
-def video_loader(current_dir, training=True):
+def video_loader(current_dir, data_dir, training=True):
     """
+    If structure like now:
 
-    :param current_dir: the path upper training
+    -walabotResearch
+        -python
+            -scripts
+        -test_dataset
+            -jump
+                -.avi
+                -.avi
+                .
+                .
+                -.avi
+            -stand
+                -.avi
+            -...
+            -activities
+        -training_backup
+            -training
+                -jump
+                -walk
+
+    :param current_dir: python script dir # /home/hanqing/walabot_Research/walabotResearch/python
+    :param data_dir: upper dir of activities folders.
+                    eg: test_dataset, training_backup/training
     :param training: True if training
     :return: list
             ['walk 4.avi', 'walk 3.avi', 'stand-to-sit 21.avi', 'stand-to-sit 25.avi', ..., 'walk 18.avi', 'jump 24.avi']
     """
+
     if(training):
-        video_dir = os.path.join(os.path.dirname(current_dir), 'test_dataset')
+        video_dir = os.path.join(os.path.dirname(current_dir), data_dir)
+        # /home/hanqing/walabot_Research/walabotResearch/data_dir
     else:
         video_dir = os.path.join(os.path.dirname(current_dir), 'testing')
 
@@ -91,17 +116,18 @@ def video_loader(current_dir, training=True):
             ordered_class_list.append(video)
     shuffle(ordered_class_list)
 
-    return ordered_class_list
+    return ordered_class_list, video_dir
 
-current_dir = os.path.dirname(os.path.realpath(__file__))
-random_order_list = video_loader(current_dir)
-
-
-
-video_dir = os.path.join(os.path.dirname(current_dir), 'test_dataset')
-
-# Iter all dataset
-for value in random_order_list:
-    [cls, video] = value.split()
-    video_path = os.path.join(video_dir, cls, video)
+# current_dir = os.path.dirname(os.path.realpath(__file__))
+# random_order_list = video_loader(current_dir)
+#
+#
+#
+# video_dir = os.path.join(os.path.dirname(current_dir), 'test_dataset')
+#
+# # Iter all dataset
+# for value in random_order_list:
+#     print(value)
+#     [cls, video] = value.split()
+#     video_path = os.path.join(video_dir, cls, video)
 

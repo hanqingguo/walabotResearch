@@ -180,8 +180,6 @@ def SensorApp():
         #cv2.imshow("frame", frame)
         frame_count += 1
 
-        # if cv2.waitKey(1) & 0xFF == ord('q'):
-        #     break
 
     # 7) Stop and Disconnect.
     out.release()

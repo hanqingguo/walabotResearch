@@ -64,7 +64,7 @@ class RNN(nn.Module):
 
         return out
 
-def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, setting, classTable, num_epochs):
+def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_dir, setting, classTable, num_epochs):
     """
 
     :param model: lstm model
@@ -94,7 +94,7 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, setti
         print("-" * 20)
 
         running_loss = 0.0
-        random_order_list = video_loader(current_dir)
+        random_order_list, video_dir = video_loader(current_dir, data_dir)
         # Each Epoch Iterate a whole dataset
         for value in random_order_list:
             [cls, video] = value.split()
@@ -104,7 +104,8 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, setti
             inputs = getFeature2(selected_video, CNN_model, setting['cut_frame'])
             inputs = inputs.unsqueeze(1)            # change dim from
                                                     # (num_frame, num_features) => (num_frame, 1, num_features)
-            #print(inputs)
+            print(inputs.size())
+            exit(0)
             model.zero_grad()
             model.train()
 
@@ -157,6 +158,7 @@ if __name__ == "__main__":
     device = torch.device("cuda:0")
     current_dir = os.path.dirname(os.path.realpath(__file__))
     # /home/hanqing/walabot_research/python
+    data_dir = 'training_backup/training'
     setting = {
                 'sequence_num': 10,
                 'hidden_size': 6,
@@ -176,7 +178,7 @@ if __name__ == "__main__":
     optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
 
-    model = train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, setting, classTable, num_epochs=500)
+
 
 
 
