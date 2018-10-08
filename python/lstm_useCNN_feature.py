@@ -173,10 +173,10 @@ if __name__ == "__main__":
     model = model.to(device)
 
     criterion = nn.NLLLoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
 
-    model = train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, setting, classTable, num_epochs=100)
+    model = train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, setting, classTable, num_epochs=500)
 
 
 
