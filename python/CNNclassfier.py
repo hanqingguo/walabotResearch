@@ -1,3 +1,17 @@
+#******************************************************
+# This Script reconstruct resnet18 maxpool layer and
+# Linear layer, feed three categories picture with
+# label, middle, left, right as position of radar detect
+# object.
+#
+#
+#******************************************************
+
+
+
+
+
+
 import torch.nn.functional as F
 import torch.optim as optim
 from python.utils import *
@@ -26,6 +40,10 @@ class CNN(nn.Module):
         self.layer2 = nn.Sequential(*list(ori_model.layer2.children()))
         self.layer3 = nn.Sequential(*list(ori_model.layer3.children()))
         self.layer4 = nn.Sequential(*list(ori_model.layer4.children()))
+
+        # Reuse original model layer1, layer2, layer3, layer4
+        # Reconstruct MaxPool2d after layer4
+        # Add Linear 512*3 as 3 classes
         self.maxpool1 = nn.MaxPool2d(kernel_size=7, stride=1, padding=0)
         #self.avgpool = nn.AvgPool2d(kernel_size=7, stride=1, padding=0)
         self.fc = nn.Linear(512, 3, bias=True)
@@ -54,7 +72,7 @@ def constructDataSet():
 
     cur_dir = os.path.dirname(os.path.realpath(__file__))
     # /home/hanqing/walabot_Research/walabotResearch/python
-    data_dir = os.path.join(os.path.dirname(cur_dir), 'training_backup/Classfier/Train')
+    data_dir = os.path.join(os.path.dirname(cur_dir), 'training_backup/Classfier-position/Train')
     # /home/hanqing/walabot_Research/walabotResearch/training_backup/Classfier/Train
 
     image_dataset = datasets.ImageFolder(data_dir, data_transforms)
@@ -71,10 +89,6 @@ def constructDataSet():
 def imshow(inp, title=None):
     """Imshow for Tensor."""
     inp = inp.numpy().transpose((1, 2, 0))
-    # mean = np.array([0.485, 0.456, 0.406])
-    # std = np.array([0.229, 0.224, 0.225])
-    # inp = std * inp + mean
-    # inp = np.clip(inp, 0, 1)
     plt.imshow(inp)
     if title is not None:
         plt.title(title)
@@ -96,7 +110,12 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
             optimizer.zero_grad()
             with torch.set_grad_enabled(True):
                 outputs = model(inputs)
+
                 _, preds = torch.max(outputs, 1)
+
+                print("output is \n\n{}\n\n"
+                      "predict is \n\n{}\n\n"
+                      "label is \n\n{}\n\n".format(outputs, preds, labels))
 
                 loss = criterion(outputs, labels)
                 loss.backward()
@@ -111,7 +130,7 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
         if epoch_acc > best_acc:
             best_acc = epoch_acc
             best_model_wts = copy.deepcopy(model.state_dict())
-            save_path = '../python/classfier'
+            save_path = '../python/classfier-position'
             torch.save(model.state_dict(), save_path)
     print('Best val Acc: {:4f}'.format(best_acc))
     model.load_state_dict(best_model_wts)
@@ -129,6 +148,7 @@ def visualize_model(model, num_images=6):
             labels = labels.to(device)
 
             outputs = model(inputs)
+
             _, preds = torch.max(outputs, 1)
 
             for j in range(inputs.size()[0]):
@@ -148,9 +168,6 @@ if __name__ == "__main__":
     cur_dir, data_dir, image_dataset, dataloaders, dataset_sizes, class_names, device = constructDataSet()
     ori_model = models.resnet18(pretrained=True)
     model_ft = CNN(ori_model)
-    # model_ft = models.resnet18(pretrained=True)
-    # num_ftrs = model_ft.fc.in_features
-    # model_ft.fc = nn.Linear(num_ftrs, 2)
 
     model_ft = model_ft.to(device)
 
@@ -163,7 +180,4 @@ if __name__ == "__main__":
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
     model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
                            num_epochs=25)
-
-
-
-    visualize_model(model_ft,num_images=20)
+    visualize_model(model_ft,num_images=10)

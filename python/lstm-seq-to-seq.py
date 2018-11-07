@@ -121,57 +121,6 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
                 loss.backward()
                 optimizer.step()
 
-
-
-
-    #     classname, selected_video, random_video_idx = select_video(current_dir, training=True)
-    #     video_name = classname + "-" + str(random_video_idx + 1)
-    #     inputs = getFeature(selected_video, model_ft, setting['num_features'], setting['cut_frame'])
-    #     inputs = inputs.unsqueeze(1)
-    #
-    #     target = target_encoder(video_name, lines, activity_ix)
-    #     target = torch.Tensor(target)
-    #     target = target.to(device)
-    #     #print(inputs)
-    #     model.zero_grad()
-    #
-    #     with torch.set_grad_enabled(True):
-    #         output = model(inputs)
-    #         _, pred = torch.max(output, 1)
-    #
-    #         # classTensor = torch.Tensor([classTable[classname]])
-    #         # # classTensor = mapClassToTensor(classTable, classname)
-    #         # classTensor = classTensor.to(device)
-    #
-    #         # print("OUTPUT IS : \n\n{}\n\n".format(output))
-    #         # print("Target SIZE IS: \n\n{}\n\n".format(target.size()))
-    #         # print("OUTPUT SIZE IS: \n\n{}\n\n".format(output.size()))
-    #         # print("ClassTensor IS : \n\n{}\n\n".format(classTensor))
-    #         # print("ClassTensor SIZE IS: \n\n{}\n\n".format(classTensor.size()))
-    #         #print(classTensor)
-    #         print("output is: \n{}\n"
-    #               "pred is: \n{}\n"
-    #               "target is: \n{}\n".format(output, pred , target))
-    #
-    #         loss = criterion(output, target.long())
-    #         loss.backward()
-    #         optimizer.step()
-    #     running_loss += loss.item()
-    #     epoch_loss = running_loss/ len(activity_ix)
-    #     loss_list.append(epoch_loss)
-    #     #epoch_acc = correct_count/ (epoch+1)
-    #     print('Loss: {:.4f}'.format(epoch_loss))
-    #     #print('Training Accuracy: {:.2f}%\n\n'.format(epoch_acc*100))
-    #     if epoch_loss < best_loss:
-    #         print("save best ")
-    #         best_loss = epoch_loss
-    #         best_model_wts = copy.deepcopy(model.state_dict())
-    # print(best_loss)
-    # model.load_state_dict(best_model_wts)
-    # x = np.arange(len(loss_list))
-    # plt.plot(x, loss_list)
-    # plt.show()
-
     return model
 
 def mapClassToTensor(classTable, classname):
@@ -211,6 +160,7 @@ def mapClassToVector(target_list):
 
 def select_video(current_dir, training=True):
     """
+    Now use video_loader in utils now, to make sure every video will be iterated.
 
     :param current_dir: the path upper training
     :return: class name of the video, and the real path of the video

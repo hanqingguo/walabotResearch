@@ -14,14 +14,10 @@ import os
 def imshow(inp, title=None):
     """Imshow for Tensor."""
     inp = inp.numpy().transpose((1, 2, 0))
-    # mean = np.array([0.485, 0.456, 0.406])
-    # std = np.array([0.229, 0.224, 0.225])
-    # inp = std * inp + mean
-    # inp = np.clip(inp, 0, 1)
     plt.imshow(inp)
     if title is not None:
         plt.title(title)
-    plt.pause(2)  # pause a bit so that plots are updated
+    plt.pause(1)  # pause a bit so that plots are updated
 
 def constructDataSet():
     data_transforms = transforms.Compose([
@@ -31,7 +27,7 @@ def constructDataSet():
 
     cur_dir = os.path.dirname(os.path.realpath(__file__))
     # /home/hanqing/walabot_Research/walabotResearch/python
-    data_dir = os.path.join(os.path.dirname(cur_dir), 'training_backup/Classfier/Test')
+    data_dir = os.path.join(os.path.dirname(cur_dir), 'training_backup/Classfier-position/Test')
     # /home/hanqing/walabot_Research/walabotResearch/training_backup/Classfier/Test
 
     image_dataset = datasets.ImageFolder(data_dir, data_transforms)
@@ -79,6 +75,6 @@ if __name__=="__main__":
     device = torch.device("cuda:0")
     ori_model = models.resnet18(pretrained=True)
     model = CNN(ori_model)
-    model.load_state_dict(torch.load("../python/classfier"))
+    model.load_state_dict(torch.load("../python/classfier-position"))
     model = model.to(device)
-    visualize_model(model, 10)
+    visualize_model(model, 12)
