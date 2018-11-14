@@ -25,7 +25,9 @@ for video in videos:
     else:
 
         video_path = os.path.join(video_dataset, video)
+        print(video_path)
         cap = cv2.VideoCapture(video_path)
+        exit(0)
         n = 0
         while cap.isOpened() and n<15:
             _, frame = cap.read()
