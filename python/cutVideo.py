@@ -7,7 +7,7 @@ data = {"activity":"walk",
         "cut_from": 5,
         "cut_length": 10
         }
-#
+# #
 fourcc = cv2.VideoWriter_fourcc(*'MJPG')
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 #/home/hanqing/walabot_Research/walabotResearch/python
@@ -29,7 +29,11 @@ out_video_dataset = os.path.join(out_dataset, data["activity"])
 
 video_path = os.path.join(video_dataset, data['video_name'])
 out_path = os.path.join(out_video_dataset, out_name)
-print(video_path, out_path)
+print(video_path)
+print("/home/hanqing/walabot_Research/walabotResearch/test_dataset/walk/2.avi")
+print(out_path)
+print("/home/hanqing/walabot_Research/walabotResearch/test_dataset/walk/23_cut.avi")
+
 
 # out = cv2.VideoWriter("/home/hanqing/walabot_Research/walabotResearch/test_dataset/walk/23_cut.avi", fourcc, 1.0, (703, 576))
 #
