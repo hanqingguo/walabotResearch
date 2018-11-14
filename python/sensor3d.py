@@ -34,8 +34,8 @@ training_dir = /home/hanqing/walabot_Research/walabotResearch/training
 
 activities = ['walk', 'sit-to-stand', 'stand-to-sit', 'fall_down', 'jump']
 
-idx = 4
-video_name = '30'
+idx = 1
+video_name = '31'
 
 training_path = os.path.join(training_dir, activities[idx])
 if activities[idx] not in os.listdir(training_dir):
@@ -64,10 +64,6 @@ def plot_3d(image, minInCm, resInCm, minPhiInDegrees, resPhiInDegrees, minThetaI
     p = image.transpose(2, 1, 0)
 
     verts, faces = measure.marching_cubes_classic(p, level=threshold)
-    #print(verts.shape, faces.shape)
-
-    #print(verts, faces)
-    #print(verts.shape, faces.shape)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
@@ -174,7 +170,6 @@ def SensorApp():
 
         #print("frame.shape is {}".format(frame.shape))
         #print(frame)
-
 
         out.write(frame)
         #cv2.imshow("frame", frame)
