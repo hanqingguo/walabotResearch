@@ -32,6 +32,7 @@ out_path = os.path.join(out_video_dataset, out_name)
 print(video_path)
 print("/home/hanqing/walabot_Research/walabotResearch/test_dataset/walk/2.avi")
 print(out_path)
+#out_path = "/home/hanqing/walabot_Research/walabotResearch/test_dataset/walk/2_cut.avi"
 print("/home/hanqing/walabot_Research/walabotResearch/test_dataset/walk/23_cut.avi")
 
 

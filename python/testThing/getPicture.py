@@ -1,3 +1,14 @@
+#########################################################################
+# This script convert video frame to pictures.
+# Choose dataset (upper directory of activities)
+# Choose activity
+# Choose output pictures path
+# Get and Save pictures from video
+#########################################################################
+
+
+
+
 import cv2
 import os
 

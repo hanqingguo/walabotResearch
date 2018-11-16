@@ -113,7 +113,7 @@ def SensorApp():
     # wlbt.SetArenaR - input parameters
     minInCm, maxInCm, resInCm = 1, 200, 2
     # wlbt.SetArenaTheta - input parameters
-    minThetaIndegrees, maxThetaIndegrees, resThetaIndegrees = -20, 20, 5
+    minThetaIndegrees, maxThetaIndegrees, resThetaIndegrees = -30, 30, 5
     # wlbt.SetArenaPhi - input parameters
     minPhiInDegrees, maxPhiInDegrees, resPhiInDegrees = -60, 60, 3
     # Set MTI mode
@@ -147,7 +147,7 @@ def SensorApp():
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     out = cv2.VideoWriter(video_path, fourcc, 1.0, (703, 576))
     frame_count = 0
-    while frame_count < 15:
+    while frame_count < 1000:
         appStatus, calibrationProcess = wlbt.GetStatus()
         # 5) Trigger: Scan(sense) according to profile and record signals
         # to be available for processing and retrieval.
@@ -171,8 +171,9 @@ def SensorApp():
         #print("frame.shape is {}".format(frame.shape))
         #print(frame)
 
-        out.write(frame)
-        #cv2.imshow("frame", frame)
+        #out.write(frame)
+        cv2.imshow("frame", frame)
+        cv2.waitKey(10)
         frame_count += 1
 
 

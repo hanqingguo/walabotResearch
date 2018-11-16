@@ -1,3 +1,9 @@
+#########################################################################
+# This script is deprecated because use old video select function.
+# Use old CNN
+#########################################################################
+
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

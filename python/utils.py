@@ -49,6 +49,10 @@ class ToTensor(object):
 
 def select_video(current_dir, training=True):
     """
+    ############################################################################################
+    #This function is deprecated now, because it cannot make sure all videos be selected once in
+    #each epoch.
+    ############################################################################################
 
     :param current_dir: the path upper training
     :return: class name of the video, and the real path of the video
@@ -117,6 +121,12 @@ def video_loader(current_dir, data_dir, training=True):
     shuffle(ordered_class_list)
 
     return ordered_class_list, video_dir
+
+
+################################################################
+# This comment part is test for new video_loader function
+#
+################################################################
 
 # current_dir = os.path.dirname(os.path.realpath(__file__))
 # random_order_list = video_loader(current_dir)
