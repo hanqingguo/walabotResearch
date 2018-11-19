@@ -4,7 +4,7 @@
 # label, middle, left, right as position of radar detect
 # object.
 #
-#
+# dataset_dir =  /home/hanqing/walabot_Research/walabotResearch/training_backup/Classfier/Train
 #******************************************************
 
 

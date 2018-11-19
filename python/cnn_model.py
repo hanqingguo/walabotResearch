@@ -64,8 +64,8 @@ def getFeature2(input_video, model_ft, cut_frame):
     :param num_feature: num of feature you want to output for 1 frame
     :param cut_frame: num of frame to be cut in original video
     :return: stack of features,
-        suppose one frame has output feature (1,100)
-        then input_video has 10 frames, then output shape is (10,100)
+        suppose one frame has output feature (1,512)
+        then input_video has 10 frames, then output shape is (10,512)
         use torch.cat to concatenate features
     """
     device = torch.device("cuda:0")

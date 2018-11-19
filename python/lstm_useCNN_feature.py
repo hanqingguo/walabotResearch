@@ -6,6 +6,8 @@ from python.utils import *
 from python.cnn_model import *
 
 """
+This script takes in multiple frames and output 1 label
+
 benefit1: change avgpool to maxpool
 Max pooling extracts the most important features like edges whereas, average pooling extracts features so smoothly.
 For image data, you can see the difference. Although both are used for same reason, 
@@ -105,7 +107,6 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
             inputs = inputs.unsqueeze(1)            # change dim from
                                                     # (num_frame, num_features) => (num_frame, 1, num_features)
             print(inputs.size())
-            exit(0)
             model.zero_grad()
             model.train()
 
@@ -129,8 +130,7 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
                 if (pred.item() == classTensor.item()):
                     correct_count += 1
                 loss = criterion(output, classTensor.long())
-                # for i,param in enumerate(model.parameters()):
-                #     print(i, param, param.size())
+
 
                 loss.backward()
                 optimizer.step()

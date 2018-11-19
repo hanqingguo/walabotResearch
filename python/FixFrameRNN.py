@@ -1,7 +1,8 @@
 #######################################################
-# This script training data each two frame has a activity label
-# Use Video Loader
+# This script training data is 3 frames videos
+# The training label is activities that video has
 # Change CNN average Pooling layer
+# Use video_loader
 #######################################################
 
 
@@ -50,7 +51,7 @@ class RNN(nn.Module):
         self.num_layers = num_layers
         self.hidden_size = hidden_size
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers)
-        self.hidden2tag = nn.Linear(hidden_size, num_class)
+        self.classifier = nn.Linear(hidden_size, num_class)
 
 
     def forward(self, inputs):
@@ -61,11 +62,9 @@ class RNN(nn.Module):
         h_0 = h_0.to(device)
         c_0 = c_0.to(device)
         out, _ = self.lstm(inputs,(h_0,c_0))
-        out = self.hidden2tag(out)
-
-        out = out.squeeze(1)
-        #out = self.classifier(out)
-        #out = out[-1, :, :]
+        out = self.classifier(out)
+        #print("out.size() is {}".format(out.size()))
+        out = out[-1, :, :]
         out = F.softmax(out, dim=1)
 
 
@@ -86,6 +85,7 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
     :return:
     """
     best_model_wts = copy.deepcopy(model.state_dict())
+    save_path = os.path.join(current_dir,'activity_best_para')
     epoch_loss_list = []
     device = torch.device("cuda:0")
     ori_model = models.resnet18(pretrained=True)
@@ -100,16 +100,19 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
 
         running_loss = 0.0
         random_order_list, video_dir = video_loader(current_dir, data_dir)
+
+
         for value in random_order_list:
             [cls, video] = value.split()
-            video_name = cls + "-" + video[:-4]   # get video name in csv file: eg: jump-1
-            selected_video = os.path.join(video_dir, cls, video)
-            #print(selected_video)
 
-            target_list = target_encoder(video_name, lines, activity_ix)
-            target = mapClassToVector(target_list)
-            target = target.to(device)
+            # uncomment below when using NLLLoss and EntrocrpLoss
+            #classTensor = torch.Tensor([classTable[cls]])
+            classTensor = mapClassToTensor(classTable, cls)
+            target = classTensor.to(device)
+            selected_video = os.path.join(video_dir, cls, video)
+
             inputs = getFeature2(selected_video, CNN_model, setting['cut_frame'])
+            print(inputs)
             inputs = inputs.unsqueeze(1)    # change dim from
                                             # (num_frame, num_features) => (num_frame, 1, num_features)
             model.zero_grad()
@@ -118,17 +121,47 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
             with torch.set_grad_enabled(True):
                 output = model(inputs)
                 _, pred = torch.max(output, 1)
-                print("pred is: \n{}\n"
-                      "target is: \n{}\n".format(pred, target_list))
-                print("output is: \n{}\n".format(output))
+                # print("pred is: \n{}\n"
+                #       "target is: \n{}\n".format(pred, target))
+                # print("output is: \n{}\n".format(output))
+
                 #print("Target SIZE IS: \n\n{}\n\n".format(target.size()))   # target.size() = [sequence_num]
 
                 #print("OUTPUT SIZE IS: \n\n{}\n\n".format(output.size()))   # output.size() = [sequence_num, act_class]
 
-                loss = torch.norm(output - target)
-                print("Current loss is {:.2f}\n".format(loss))
+                _, idx = torch.max(target,1)
+
+
+                if (pred.item() == idx.item()):
+                    correct_count += 1
+
+
+                # Uncomment when using NLLLoss and EntrocrpLoss
+                # if (pred.item() == target.item()):
+                #     correct_count += 1
+
+                print(output, target)
+
+                loss = criterion(output, target)
+
+
                 loss.backward()
                 optimizer.step()
+            running_loss += loss.item()
+        epoch_loss = running_loss/ len(random_order_list)
+        epoch_acc = correct_count/ len(random_order_list)
+        epoch_loss_list.append(epoch_loss)
+        print('Loss: {:.4f}'.format(epoch_loss))
+        print('Training Accuracy: {:.2f}%\n\n'.format(epoch_acc*100))
+        if epoch_acc > best_acc:
+            print("save best ")
+            best_acc = epoch_acc
+            best_model_wts = copy.deepcopy(model.state_dict())
+            torch.save(model.state_dict(), save_path)
+    model.load_state_dict(best_model_wts)
+    x = np.arange(len(epoch_loss_list))
+    plt.plot(x, epoch_loss_list)
+    plt.show()
 
     return model
 
@@ -228,7 +261,9 @@ if __name__ == '__main__':
     device = torch.device("cuda:0")
     current_dir = os.path.dirname(os.path.realpath(__file__))
     #current_dir = / home / hanqing / walabot_Research / walabotResearch / python
-    data_dir = 'training_backup/training'
+    # In video_loader function, get dirname of current_dir to /home/hanqing/walabot_Research/ walabotResearch/
+    data_dir = 'cut_dataset'
+
 
 
     setting = {'cnn_model': 'resnet18',
@@ -237,7 +272,7 @@ if __name__ == '__main__':
                'num_layers': 1,
                'num_directions': 1,
                'num_features': 512,
-               'cut_frame': 8}
+               'cut_frame': 3}
     """
     sequence_num: how many frame in the sequence
     hidden_size: hidden_size is hidden state dimension
@@ -245,18 +280,18 @@ if __name__ == '__main__':
     num_directions: 2 is bidirection, 1 is only one direction
     """
     #classTable = {'walk':0, 'sit-to-stand':1, 'stand-to-sit':2, 'fall_down':3, 'jump':4}
-    #classTable = {'walk':0, 'sit-to-stand':1, 'stand-to-sit':2, 'jump':3}
-    classTable = {'stand-to-sit': 0, 'jump': 1}
+
+    classTable = {'jump': 0, 'walk': 1}
     activity_ix, head, lines = activity_to_ix()
     # activity_ix = {'still': 0, 'jump': 1, 'sitting': 2, 'moving': 3}
 
     model = RNN(input_size=setting['num_features'], hidden_size=setting['hidden_size'],
-                num_layers=setting['num_layers'], num_class=len(activity_ix))
+                num_layers=setting['num_layers'], num_class=len(classTable))
     model = model.to(device)
 
-    criterion = nn.NLLLoss()
+    criterion = nn.MSELoss()
     optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
 
-    model = train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_dir, setting, classTable, num_epochs=100)
+    model = train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_dir, setting, classTable, num_epochs=2)
 

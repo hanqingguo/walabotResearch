@@ -2,10 +2,10 @@ import cv2
 import os
 
 
-data = {"activity":"walk",
-        "video_name":"2.avi",
-        "cut_from": 5,
-        "cut_length": 10
+data = {"activity":"jump",
+        "video_name":"4.avi",
+        "cut_from": 0,
+        "cut_length": 3
         }
 # #
 fourcc = cv2.VideoWriter_fourcc(*'MJPG')
@@ -30,10 +30,10 @@ out_video_dataset = os.path.join(out_dataset, data["activity"])
 video_path = os.path.join(video_dataset, data['video_name'])
 out_path = os.path.join(out_video_dataset, out_name)
 print(video_path)
-print("/home/hanqing/walabot_Research/walabotResearch/test_dataset/walk/2.avi")
+
 print(out_path)
 #out_path = "/home/hanqing/walabot_Research/walabotResearch/test_dataset/walk/2_cut.avi"
-print("/home/hanqing/walabot_Research/walabotResearch/test_dataset/walk/23_cut.avi")
+
 
 
 # out = cv2.VideoWriter("/home/hanqing/walabot_Research/walabotResearch/test_dataset/walk/23_cut.avi", fourcc, 1.0, (703, 576))
@@ -47,7 +47,7 @@ cap = cv2.VideoCapture(video_path)
 n = 0
 while cap.isOpened() and n < data["cut_from"] + data["cut_length"] + 1:
     _, frame = cap.read()
-    if (n>data["cut_from"] and n<data["cut_from"]+data["cut_length"]):
+    if (n>data["cut_from"] and n<data["cut_from"]+data["cut_length"] + 1):
         out.write(frame)
         print("write {}".format(n))
     n = n + 1
