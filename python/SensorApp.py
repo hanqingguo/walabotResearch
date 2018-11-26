@@ -81,7 +81,6 @@ def SensorApp():
             sizeX = (maxInCm - minInCm) / resInCm
             sizeY = (maxPhiInDegrees - minPhiInDegrees) / resPhiInDegrees
         """
-        #PrintSensorTargets(targets)
         img = np.array(rasterImage)
         plt.imshow(img, cmap=plt.cm.hot, interpolation='nearest', extent=[-90,90,200,0])
         # Thanks https://stackoverflow.com/questions/18696122/change-values-on-matplotlib-imshow-graph-axis
