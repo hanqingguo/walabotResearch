@@ -34,8 +34,8 @@ training_dir = /home/hanqing/walabot_Research/walabotResearch/training
 
 activities = ['walk', 'sit-to-stand', 'stand-to-sit', 'fall_down', 'jump']
 
-idx = 1
-video_name = '31'
+idx = 0
+video_name = 'nan'
 
 training_path = os.path.join(training_dir, activities[idx])
 if activities[idx] not in os.listdir(training_dir):
@@ -113,7 +113,7 @@ def SensorApp():
     # wlbt.SetArenaR - input parameters
     minInCm, maxInCm, resInCm = 1, 200, 2
     # wlbt.SetArenaTheta - input parameters
-    minThetaIndegrees, maxThetaIndegrees, resThetaIndegrees = -30, 30, 5
+    minThetaIndegrees, maxThetaIndegrees, resThetaIndegrees = -30, 30, 3
     # wlbt.SetArenaPhi - input parameters
     minPhiInDegrees, maxPhiInDegrees, resPhiInDegrees = -60, 60, 3
     # Set MTI mode
@@ -145,7 +145,7 @@ def SensorApp():
 
     start_time = time.time()
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    out = cv2.VideoWriter(video_path, fourcc, 1.0, (703, 576))
+    out = cv2.VideoWriter(video_path, fourcc, 5.0, (703, 576))
     frame_count = 0
     while frame_count < 1000:
         appStatus, calibrationProcess = wlbt.GetStatus()
@@ -171,7 +171,7 @@ def SensorApp():
         #print("frame.shape is {}".format(frame.shape))
         #print(frame)
 
-        #out.write(frame)
+        out.write(frame)
         cv2.imshow("frame", frame)
         cv2.waitKey(10)
         frame_count += 1
