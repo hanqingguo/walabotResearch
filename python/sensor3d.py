@@ -12,6 +12,8 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from skimage import measure, morphology
 import cv2
 import os
+from python.loadModel import *
+import torch
 
 if platform == 'win32':
     modulePath = join('C:/', 'Program Files', 'Walabot', 'WalabotSDK',
@@ -147,6 +149,16 @@ def SensorApp():
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     out = cv2.VideoWriter(video_path, fourcc, 5.0, (703, 576))
     frame_count = 0
+
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    ori_model = models.resnet18(pretrained=True)
+    model = CNN(ori_model)
+    model.load_state_dict(torch.load("../python/classfier"))
+    model = model.to(device)
+
+    print(model)
+
+
     while frame_count < 1000:
         appStatus, calibrationProcess = wlbt.GetStatus()
         # 5) Trigger: Scan(sense) according to profile and record signals
@@ -168,12 +180,45 @@ def SensorApp():
 
         frame = plot_3d(img, minInCm, resInCm, minPhiInDegrees, resPhiInDegrees, minThetaIndegrees, resThetaIndegrees,threshold=0.8)
 
+
+        # frame = frame.transpose(0,1,2)
+        # data_transforms = transforms.Compose([
+        #     transforms.ToPILImage(),
+        #     transforms.Resize((224, 224)),
+        #     transforms.ToTensor()
+        # ])
+        #
+        # test = data_transforms(frame)
+        # inp = test.numpy().transpose(1,2,0)
+        # plt.imshow(inp)
+        # plt.pause(2)
+
+
+        # change from 4 channel image to 3 channel image
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
+
+        visualize_stream(model, frame)
+        exit(0)
+
+        print("shape of 4 channel is {}".format(frame.shape))
+        print("shape of 3 channel is {}".format(frame1.shape))
+        #test = visualize_stream(model, frame)
+
+        cv2.imshow("frame1", frame1)
+        cv2.waitKey(5000)
+
+        cv2.imshow("frame", frame)
+        cv2.waitKey(5000)
+
+
         #print("frame.shape is {}".format(frame.shape))
         #print(frame)
 
-        out.write(frame)
+        exit(0)
+        #out.write(frame)
         cv2.imshow("frame", frame)
         cv2.waitKey(10)
+
         frame_count += 1
 
 
