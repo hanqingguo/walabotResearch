@@ -1,10 +1,18 @@
 #******************************************************
 # This Script reconstruct resnet18 maxpool layer and
-# Linear layer, feed three categories picture with
-# label, middle, left, right as position of radar detect
+# Linear layer, feed three categories pictures with
+# labels, middle, left, right as position of radar detect
 # object.
 #
+# middle, left, right
+# Or
+# regular, ambiguous
+#
+# ambiguous images vs regular images
 # dataset_dir =  /home/hanqing/walabot_Research/walabotResearch/training_backup/Classfier/Train
+#
+# position classification
+# dataset_dir = /home/hanqing/walabot_Research/walabotResearch/training_backup/Classfier-position/Train
 #******************************************************
 
 
@@ -29,6 +37,7 @@ import os
 import copy
 from python.utils import *
 
+
 class CNN(nn.Module):
     def __init__(self, ori_model):
         super(CNN,self).__init__()
@@ -46,7 +55,7 @@ class CNN(nn.Module):
         # Add Linear 512*3 as 3 classes
         self.maxpool1 = nn.MaxPool2d(kernel_size=7, stride=1, padding=0)
         #self.avgpool = nn.AvgPool2d(kernel_size=7, stride=1, padding=0)
-        self.fc = nn.Linear(512, 3, bias=True)
+        self.fc = nn.Linear(512, 2, bias=True)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -72,7 +81,7 @@ def constructDataSet():
 
     cur_dir = os.path.dirname(os.path.realpath(__file__))
     # /home/hanqing/walabot_Research/walabotResearch/python
-    data_dir = os.path.join(os.path.dirname(cur_dir), 'training_backup/Classfier-position/Train')
+    data_dir = os.path.join(os.path.dirname(cur_dir), 'training_backup/Classfier/Train')
     # /home/hanqing/walabot_Research/walabotResearch/training_backup/Classfier/Train
 
     image_dataset = datasets.ImageFolder(data_dir, data_transforms)
@@ -95,6 +104,12 @@ def imshow(inp, title=None):
     plt.pause(2)  # pause a bit so that plots are updated
 
 def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
+    path_to_train_loss = "../python/loss_data/train_loss.txt"
+    path_to_acc = "../python/loss_data/acc.txt"
+
+    iteration_loss_list = []
+    iteration_acc_list = []
+
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0
     for epoch in range(num_epochs):
@@ -104,7 +119,9 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
         model.train()
         running_loss = 0.0
         running_corrects = 0
+        current_batch = 0
         for inputs, labels in dataloaders:
+            current_batch += 1
             inputs = inputs.to(device)
             labels = labels.to(device)
             optimizer.zero_grad()
@@ -121,7 +138,14 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
                 loss.backward()
                 optimizer.step()
             running_loss += loss.item() * inputs.size(0)
+            iteration_loss_list.append(running_loss  / current_batch )
+
             running_corrects += torch.sum(preds == labels.data)
+            iteration_acc_list.append(running_corrects.item() / (inputs.size(0)*current_batch))
+
+            #print(iteration_loss_list, iteration_acc_list)
+            #exit(0)
+
         epoch_loss = running_loss / dataset_sizes
         epoch_acc = running_corrects.double() / dataset_sizes
         print('Loss: {:.4f} Acc: {:.4f}'.format(
@@ -130,10 +154,25 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
         if epoch_acc > best_acc:
             best_acc = epoch_acc
             best_model_wts = copy.deepcopy(model.state_dict())
-            save_path = '../python/classfier-position'
+            save_path = '../python/classfier'
             torch.save(model.state_dict(), save_path)
     print('Best val Acc: {:4f}'.format(best_acc))
     model.load_state_dict(best_model_wts)
+    print(iteration_loss_list)
+    print(iteration_acc_list)
+    with open(path_to_train_loss, 'w') as f:
+        for l in iteration_loss_list:
+            f.write(str(l)+'\n')
+        f.close()
+    with open(path_to_acc, 'w') as f:
+        for l in iteration_acc_list:
+            f.write(str(l)+'\n')
+
+        # wr = csv.writer(f, quoting=csv.QUOTE_ALL)
+        #
+        # wr.writerow(iteration_acc_list)
+        f.close()
+
     return model
 
 def visualize_model(model, num_images=6):
@@ -180,4 +219,4 @@ if __name__ == "__main__":
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
     model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
                            num_epochs=25)
-    visualize_model(model_ft,num_images=10)
+    visualize_model(model_ft,num_images=6)

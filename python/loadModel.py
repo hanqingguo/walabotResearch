@@ -1,3 +1,15 @@
+########################################################
+# This script load trained model to recognize
+# ambiguous images or regular images
+#
+# load_path = "../python/classfier"
+# test_dataset_path = "/home/hanqing/walabot_Research/walabotResearch/training_backup/Classfier/Test"
+########################################################
+
+
+
+
+
 import torch
 import numpy as np
 import torch.nn as nn
@@ -27,7 +39,7 @@ def constructDataSet():
 
     cur_dir = os.path.dirname(os.path.realpath(__file__))
     # /home/hanqing/walabot_Research/walabotResearch/python
-    data_dir = os.path.join(os.path.dirname(cur_dir), 'training_backup/Classfier-position/Test')
+    data_dir = os.path.join(os.path.dirname(cur_dir), 'training_backup/Classfier/Test')
     # /home/hanqing/walabot_Research/walabotResearch/training_backup/Classfier/Test
 
     image_dataset = datasets.ImageFolder(data_dir, data_transforms)
@@ -53,6 +65,8 @@ def visualize_model(model, num_images=6):
             inputs = inputs.to(device)
             labels = labels.to(device)
 
+            print(inputs.size())
+            exit(0)
             outputs = model(inputs)
             _, preds = torch.max(outputs, 1)
 
@@ -68,6 +82,32 @@ def visualize_model(model, num_images=6):
                     return
         model.train(mode=was_training)
 
+def visualize_stream(model, img):
+
+    device = torch.device("cuda:0")
+    img = img.transpose(0, 1, 2)
+    data_transforms = transforms.Compose([
+        transforms.ToPILImage(),
+        transforms.Resize((224, 224)),
+        transforms.ToTensor()
+    ])
+
+    img = data_transforms(img)
+    print(type(img))
+    img = img.to(device)
+    print(type(img))
+
+    #inputs = data_transforms(img)
+    was_training = model.training
+    model.eval()
+    img = img.view(1,img.size(0),img.size(1),img.size(2))
+    output = model(img)
+    print(output)
+    exit(0)
+    return output
+    #with torch.no_grad:
+
+
 
 if __name__=="__main__":
     cur_dir, data_dir, image_dataset, dataloaders, dataset_sizes, class_names, device = constructDataSet()
@@ -75,6 +115,6 @@ if __name__=="__main__":
     device = torch.device("cuda:0")
     ori_model = models.resnet18(pretrained=True)
     model = CNN(ori_model)
-    model.load_state_dict(torch.load("../python/classfier-position"))
+    model.load_state_dict(torch.load("../python/classfier"))
     model = model.to(device)
-    visualize_model(model, 12)
+    visualize_model(model, 6)
