@@ -53,8 +53,8 @@ class CNN(nn.Module):
         # Reuse original model layer1, layer2, layer3, layer4
         # Reconstruct MaxPool2d after layer4
         # Add Linear 512*3 as 3 classes
-        self.maxpool1 = nn.MaxPool2d(kernel_size=7, stride=1, padding=0)
-        #self.avgpool = nn.AvgPool2d(kernel_size=7, stride=1, padding=0)
+        #self.maxpool1 = nn.MaxPool2d(kernel_size=7, stride=1, padding=0)
+        self.avgpool = nn.AvgPool2d(kernel_size=7, stride=1, padding=0)
         self.fc = nn.Linear(512, 2, bias=True)
 
     def forward(self, x):
@@ -67,8 +67,8 @@ class CNN(nn.Module):
         x = self.layer2(x)
         x = self.layer3(x)
         x = self.layer4(x)
-        x = self.maxpool1(x)
-        #x = self.avgpool(x)
+        #x = self.maxpool1(x)
+        x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
         return x
@@ -104,8 +104,8 @@ def imshow(inp, title=None):
     plt.pause(2)  # pause a bit so that plots are updated
 
 def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
-    path_to_train_loss = "../python/loss_data/train_loss.txt"
-    path_to_acc = "../python/loss_data/acc.txt"
+    path_to_train_loss = "../python/loss_data/train_loss_avgpool.txt"
+    path_to_acc = "../python/loss_data/acc_avgpool.txt"
 
     iteration_loss_list = []
     iteration_acc_list = []
@@ -218,5 +218,5 @@ if __name__ == "__main__":
     # Decay LR by a factor of 0.1 every 7 epochs
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
     model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
-                           num_epochs=25)
+                           num_epochs=50)
     visualize_model(model_ft,num_images=6)
