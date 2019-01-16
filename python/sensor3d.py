@@ -156,7 +156,6 @@ def SensorApp():
     model.load_state_dict(torch.load("../python/classfier"))
     model = model.to(device)
 
-    print(model)
 
 
     while frame_count < 1000:
@@ -180,44 +179,14 @@ def SensorApp():
 
         frame = plot_3d(img, minInCm, resInCm, minPhiInDegrees, resPhiInDegrees, minThetaIndegrees, resThetaIndegrees,threshold=0.8)
 
-
-        # frame = frame.transpose(0,1,2)
-        # data_transforms = transforms.Compose([
-        #     transforms.ToPILImage(),
-        #     transforms.Resize((224, 224)),
-        #     transforms.ToTensor()
-        # ])
-        #
-        # test = data_transforms(frame)
-        # inp = test.numpy().transpose(1,2,0)
-        # plt.imshow(inp)
-        # plt.pause(2)
-
-
         # change from 4 channel image to 3 channel image
         frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
+        result = visualize_stream(model, frame)
 
-        visualize_stream(model, frame)
-        exit(0)
+        if (result):
+            cv2.imshow("frame", frame)
+            cv2.waitKey(100)
 
-        print("shape of 4 channel is {}".format(frame.shape))
-        print("shape of 3 channel is {}".format(frame1.shape))
-        #test = visualize_stream(model, frame)
-
-        cv2.imshow("frame1", frame1)
-        cv2.waitKey(5000)
-
-        cv2.imshow("frame", frame)
-        cv2.waitKey(5000)
-
-
-        #print("frame.shape is {}".format(frame.shape))
-        #print(frame)
-
-        exit(0)
-        #out.write(frame)
-        cv2.imshow("frame", frame)
-        cv2.waitKey(10)
 
         frame_count += 1
 

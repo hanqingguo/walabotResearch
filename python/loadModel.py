@@ -21,6 +21,7 @@ from python.CNNclassfier import CNN
 import cv2
 import matplotlib.pyplot as plt
 import os
+from python.CNN_Filter import *
 
 
 def imshow(inp, title=None):
@@ -93,20 +94,11 @@ def visualize_stream(model, img):
     ])
 
     img = data_transforms(img)
-    print(type(img))
     img = img.to(device)
-    print(type(img))
-
-    #inputs = data_transforms(img)
-    was_training = model.training
     model.eval()
-    img = img.view(1,img.size(0),img.size(1),img.size(2))
-    output = model(img)
-    print(output)
-    exit(0)
-    return output
-    #with torch.no_grad:
-
+    img = img.unsqueeze(0)
+    result = filter(model, img)
+    return result
 
 
 if __name__=="__main__":

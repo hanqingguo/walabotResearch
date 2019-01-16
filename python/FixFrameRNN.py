@@ -71,7 +71,7 @@ class RNN(nn.Module):
         return out
 
 
-def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_dir, setting, classTable, num_epochs):
+def train_model(model, criterion, optimizer, exp_lr_scheduler, current_dir, data_dir, setting, classTable, num_epochs):
     """
 
     :param model: lstm model
