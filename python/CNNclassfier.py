@@ -1,8 +1,9 @@
 #******************************************************
 # This Script reconstruct resnet18 maxpool layer and
 # Linear layer, feed three categories pictures with
-# labels, middle, left, right as position of radar detect
-# object.
+# labels {middle, left, right} as position of radar detect
+# object. or {ambiguous, regular}
+#
 #
 # middle, left, right
 # Or
@@ -167,10 +168,6 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
     with open(path_to_acc, 'w') as f:
         for l in iteration_acc_list:
             f.write(str(l)+'\n')
-
-        # wr = csv.writer(f, quoting=csv.QUOTE_ALL)
-        #
-        # wr.writerow(iteration_acc_list)
         f.close()
 
     return model
