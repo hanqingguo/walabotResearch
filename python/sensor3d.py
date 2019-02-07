@@ -34,10 +34,10 @@ training_dir = /home/hanqing/walabot_Research/walabotResearch/training
 
 """
 
-activities = ['walk', 'sit-to-stand', 'stand-to-sit', 'fall_down', 'jump']
+activities = ['walk', 'still', 'sit-to-stand', 'stand-to-sit', 'fall_down', 'jump']
 
-idx = 0
-video_name = 'nan'
+idx = 1
+video_name = activities[idx]+"_"+"1"
 
 training_path = os.path.join(training_dir, activities[idx])
 if activities[idx] not in os.listdir(training_dir):
@@ -59,17 +59,13 @@ def normlize(img):
     img = (img-np.min(img)) / (np.max(img) - np.min(img))
     return img
 
-
 def plot_3d(image, minInCm, resInCm, minPhiInDegrees, resPhiInDegrees, minThetaIndegrees, resThetaIndegrees, threshold=0):
 
     # stack sliced image to upright
     p = image.transpose(2, 1, 0)
-
     verts, faces = measure.marching_cubes_classic(p, level=threshold)
-
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
-
     # Make change axis from 3d volume indexes , to more make sense data
     # (0,100) => (1,200)  R(cm)
     # (0,61)  => (-90,90) Phi(degree)
@@ -147,7 +143,7 @@ def SensorApp():
 
     start_time = time.time()
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    out = cv2.VideoWriter(video_path, fourcc, 5.0, (703, 576))
+    out = cv2.VideoWriter(video_path, fourcc, 2.0, (703, 576))
     frame_count = 0
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -186,8 +182,9 @@ def SensorApp():
 
 
         if (result):
-            cv2.imshow("frame", frame)
-            cv2.waitKey(5)
+            # cv2.imshow("frame", frame)
+            # cv2.waitKey(5)
+            out.write(frame)
 
         frame_count += 1
 
