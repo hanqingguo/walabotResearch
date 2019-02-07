@@ -181,12 +181,13 @@ def SensorApp():
 
         # change from 4 channel image to 3 channel image
         frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
+        # filter bad frame
         result = visualize_stream(model, frame)
+
 
         if (result):
             cv2.imshow("frame", frame)
-            cv2.waitKey(100)
-
+            cv2.waitKey(5)
 
         frame_count += 1
 
