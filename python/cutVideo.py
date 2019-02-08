@@ -2,9 +2,9 @@ import cv2
 import os
 
 
-data = {"activity":"still",
-        "video_name":"still_1.avi",
-        "cut_from": 24,
+data = {"activity":"walk",
+        "video_name":"walk_0.avi",
+        "cut_from": 50,
         "cut_length": 6,
         "out_idx": "4"
         }
@@ -23,7 +23,7 @@ out_dataset = os.path.join(root_path, out_dataset_name)
 
 video_dataset = os.path.join(dataset, data["activity"])
 video_path = os.path.join(video_dataset, data["video_name"])
-out_name = data["video_name"][:-4]+"_cut5.avi"
+out_name = data["video_name"][:-4]+"_cut4.avi"
 print(out_name)
 
 out_video_dataset = os.path.join(out_dataset, data["activity"])

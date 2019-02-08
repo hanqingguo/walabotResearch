@@ -144,8 +144,7 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
             running_corrects += torch.sum(preds == labels.data)
             iteration_acc_list.append(running_corrects.item() / (inputs.size(0)*current_batch))
 
-            #print(iteration_loss_list, iteration_acc_list)
-            #exit(0)
+
 
         epoch_loss = running_loss / dataset_sizes
         epoch_acc = running_corrects.double() / dataset_sizes

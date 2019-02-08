@@ -55,7 +55,7 @@ def getFeature(input_video, model_ft, num_feature, cut_frame):
 def getFeature2(input_video, model_ft, cut_frame):
     """
 
-    This function works for lstm_useCNN_feature,
+    This function works for lstm_useCNN_feature.py,
     The difference is remove num_feature, because the last layer of model_ft is pooling layer,
     rather than customized fc layer, the num_feature will keep to 512
 

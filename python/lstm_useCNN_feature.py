@@ -97,24 +97,25 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
 
         running_loss = 0.0
         random_order_list, video_dir = video_loader(current_dir, data_dir)
+        #print(random_order_list, video_dir)
         # Each Epoch Iterate a whole dataset
         for value in random_order_list:
             [cls, video] = value.split()
             selected_video = os.path.join(video_dir, cls, video)
-
-
             inputs = getFeature2(selected_video, CNN_model, setting['cut_frame'])
             inputs = inputs.unsqueeze(1)            # change dim from
                                                     # (num_frame, num_features) => (num_frame, 1, num_features)
-            print(inputs.size())
+
             model.zero_grad()
             model.train()
 
             with torch.set_grad_enabled(True):
                 output = model(inputs)
-                _, pred = torch.max(output, 1)
+                #print(output)
 
+                _, pred = torch.max(output, 1)
                 classTensor = torch.Tensor([classTable[cls]])
+
                 # classTensor = mapClassToTensor(classTable, classname)
                 classTensor = classTensor.to(device)
                 # print("OUTPUT IS : \n\n{}\n\n".format(output))
@@ -145,8 +146,11 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
             print("save best ")
             best_acc = epoch_acc
             best_model_wts = copy.deepcopy(model.state_dict())
+            save_path = '../python/rnn_weight'
+            torch.save(model.state_dict(), save_path)
 
     model.load_state_dict(best_model_wts)
+    print(best_acc)
     x = np.arange(len(epoch_loss_list))
     plt.plot(x, epoch_loss_list)
     plt.show()
@@ -158,25 +162,25 @@ if __name__ == "__main__":
     device = torch.device("cuda:0")
     current_dir = os.path.dirname(os.path.realpath(__file__))
     # /home/hanqing/walabot_research/python
-    data_dir = 'training_backup/training'
+    data_dir = 'cut_dataset'
     setting = {
                 'sequence_num': 10,
-                'hidden_size': 6,
+                'hidden_size': 100,
                 'num_layers': 1,
                 'num_directions': 1,
                 'num_features': 512,
-                'cut_frame': 10
+                'cut_frame': 6
               }
 
-    classTable = {'sit-to-stand': 0, 'walk': 1, 'stand-to-sit': 2, 'jump': 3}
-
+    classTable = {'walk': 0, 'still':1}
     model = RNN(input_size=setting['num_features'], hidden_size=setting['hidden_size'],
                 num_layers=setting['num_layers'], num_class=len(classTable))
     model = model.to(device)
 
     criterion = nn.NLLLoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(), lr=0.07, momentum=0.9)
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
+    trained_model = train_model(model,criterion,optimizer, exp_lr_scheduler, current_dir, data_dir,setting,classTable,500)
 
 
 

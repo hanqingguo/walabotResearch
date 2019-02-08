@@ -65,9 +65,6 @@ def visualize_model(model, num_images=6):
         for i, (inputs, labels) in enumerate(dataloaders):
             inputs = inputs.to(device)
             labels = labels.to(device)
-
-            print(inputs.size())
-            exit(0)
             outputs = model(inputs)
             _, preds = torch.max(outputs, 1)
 
