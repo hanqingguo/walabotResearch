@@ -15,6 +15,8 @@ I think max pooling is better for extracting the extreme features.
 Average pooling sometimes can’t extract good features because it takes all into count and results an average value which may/may not be important for object detection type tasks.
 
 benefit2: remove fc layer, keep cnn result
+
+Time: Feb.5.2019
 """
 class CNN(nn.Module):
     def __init__(self, ori_model):
@@ -66,6 +68,7 @@ class RNN(nn.Module):
 
         return out
 
+
 def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_dir, setting, classTable, num_epochs):
     """
 
@@ -111,8 +114,6 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
 
             with torch.set_grad_enabled(True):
                 output = model(inputs)
-                #print(output)
-
                 _, pred = torch.max(output, 1)
                 classTensor = torch.Tensor([classTable[cls]])
 
@@ -123,9 +124,9 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
                 # print("ClassTensor IS : \n\n{}\n\n".format(classTensor))
                 # print("ClassTensor SIZE IS: \n\n{}\n\n".format(classTensor.size()))
 
-                # print("output is: \n{}\n"
-                #       "pred is: \n{}\n"
-                #       "class is: \n{}\n".format(output, pred.item(),classTensor.item()))
+                print("output is: \n{}\n"
+                      "pred is: \n{}\n"
+                      "class is: \n{}\n".format(output, pred.item(),classTensor.item()))
 
 
                 if (pred.item() == classTensor.item()):
@@ -178,9 +179,9 @@ if __name__ == "__main__":
     model = model.to(device)
 
     criterion = nn.NLLLoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.07, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(), lr=0.2, momentum=0.9)
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
-    trained_model = train_model(model,criterion,optimizer, exp_lr_scheduler, current_dir, data_dir,setting,classTable,500)
+    trained_model = train_model(model,criterion,optimizer, exp_lr_scheduler, current_dir, data_dir,setting,classTable,50)
 
 
 
