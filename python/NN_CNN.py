@@ -15,11 +15,11 @@ Time: Feb.9.2019
 class DNN(nn.Module):
     def __init__(self):
         super(DNN, self).__init__()
-        self.fc1 = nn.Linear(6*512,1024)
-        self.fc2 = nn.Linear(1024,84)
-        self.fc3 = nn.Linear(84,2)
+        self.fc1 = nn.Linear(6*20,100)
+        self.fc2 = nn.Linear(100,20)
+        self.fc3 = nn.Linear(20,2)
     def forward(self, x):
-        x = x.view(-1, 512*6)
+        x = x.view(-1, 20*6)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
@@ -45,6 +45,6 @@ if __name__ == "__main__":
     model = model.to(device)
 
     criterion = nn.NLLLoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.05, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
-    trained_model = train_model(model,criterion,optimizer, exp_lr_scheduler, current_dir, data_dir,setting,classTable,50)
+    trained_model = train_model(model,criterion,optimizer, exp_lr_scheduler, current_dir, data_dir,setting,classTable,100)

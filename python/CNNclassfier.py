@@ -131,9 +131,9 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
 
                 _, preds = torch.max(outputs, 1)
 
-                print("output is \n\n{}\n\n"
-                      "predict is \n\n{}\n\n"
-                      "label is \n\n{}\n\n".format(outputs, preds, labels))
+                # print("output is \n\n{}\n\n"
+                #       "predict is \n\n{}\n\n"
+                #       "label is \n\n{}\n\n".format(outputs, preds, labels))
 
                 loss = criterion(outputs, labels)
                 loss.backward()

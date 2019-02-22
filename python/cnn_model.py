@@ -71,7 +71,7 @@ def getFeature2(input_video, model_ft, cut_frame):
     device = torch.device("cuda:0")
     cap = cv2.VideoCapture(input_video)
     n = 0
-    features = torch.rand(1, 512)       # will be delete this feature at return
+    features = torch.rand(1, 64)       # will be delete this feature at return
     features = features.to(device)
 
     while (cap.isOpened()) and n<cut_frame:
@@ -84,11 +84,10 @@ def getFeature2(input_video, model_ft, cut_frame):
         frame = torch.from_numpy(frame)  # ndarray to tensor
         frame = frame.unsqueeze(0)       # from (3,224,224) => (1,3,224,224)
         frame = frame.to(device)
-
         feature = model_ft(frame.float())
         # feature.size() = (1, 512, 1, 1)
-        feature = feature.squeeze(2)
-        feature = feature.squeeze(2)
+        #feature = feature.squeeze(0)
+        #feature = feature.squeeze(2)
         # feature.size() = (1, 512)
         features = torch.cat((features, feature),0)
         n = n + 1

@@ -31,6 +31,7 @@ class CNN(nn.Module):
         self.layer4 = nn.Sequential(*list(ori_model.layer4.children()))
         self.maxpool1 = nn.MaxPool2d(kernel_size=7, stride=1, padding=0)
         #self.avgpool = nn.AvgPool2d(kernel_size=7, stride=1, padding=0)
+        self.fc = nn.Linear(512, 64)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -43,6 +44,8 @@ class CNN(nn.Module):
         x = self.layer3(x)
         x = self.layer4(x)
         x = self.maxpool1(x)
+        x = x.view(-1,512)
+        x = self.fc(x)
         #x = self.avgpool(x)
         return x
 
@@ -103,6 +106,7 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
         #print(random_order_list, video_dir)
         # Each Epoch Iterate a whole dataset
         for value in random_order_list:
+            print(value)
             [cls, video] = value.split()
             selected_video = os.path.join(video_dir, cls, video)
             inputs = getFeature2(selected_video, CNN_model, setting['cut_frame'])
@@ -113,8 +117,11 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
             model.train()
 
             with torch.set_grad_enabled(True):
+                print(inputs.size())
                 output = model(inputs)
+                print(output.size(), output)
                 _, pred = torch.max(output, 1)
+
                 classTensor = torch.Tensor([classTable[cls]])
 
                 # classTensor = mapClassToTensor(classTable, classname)
