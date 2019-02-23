@@ -117,27 +117,21 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
             model.train()
 
             with torch.set_grad_enabled(True):
-                print(inputs.size())
                 output = model(inputs)
-                print(output.size(), output)
+                output = output.squeeze(1)
                 _, pred = torch.max(output, 1)
-
                 classTensor = torch.Tensor([classTable[cls]])
-
                 # classTensor = mapClassToTensor(classTable, classname)
                 classTensor = classTensor.to(device)
-                # print("OUTPUT IS : \n\n{}\n\n".format(output))
-                # print("OUTPUT SIZE IS: \n\n{}\n\n".format(output.size()))
-                # print("ClassTensor IS : \n\n{}\n\n".format(classTensor))
-                # print("ClassTensor SIZE IS: \n\n{}\n\n".format(classTensor.size()))
+
 
                 print("output is: \n{}\n"
                       "pred is: \n{}\n"
-                      "class is: \n{}\n".format(output, pred.item(),classTensor.item()))
+                      "class is: \n{}\n".format(output, pred,classTensor.item()))
 
 
-                if (pred.item() == classTensor.item()):
-                    correct_count += 1
+                # if (pred.item() == classTensor.item()):
+                #     correct_count += 1
                 loss = criterion(output, classTensor.long())
 
 
