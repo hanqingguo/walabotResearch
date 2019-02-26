@@ -128,13 +128,16 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
                 print("output is: \n{}\n"
                       "pred is: \n{}\n"
                       "class is: \n{}\n".format(output, pred,classTensor.item()))
-
+                if (classTensor.item()==0):
+                    result = torch.zeros(1,6)
+                else:
+                    result = torch.ones(1,6)
+                result = result.squeeze(0)
+                result = result.to(device)
 
                 # if (pred.item() == classTensor.item()):
                 #     correct_count += 1
-                loss = criterion(output, classTensor.long())
-
-
+                loss = criterion(output, result.long())
                 loss.backward()
                 optimizer.step()
 
