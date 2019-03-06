@@ -37,7 +37,7 @@ training_dir = /home/hanqing/walabot_Research/walabotResearch/training
 activities = ['walk', 'still', 'sit-to-stand', 'stand-to-sit', 'fall_down', 'jump']
 
 idx = 1
-video_name = activities[idx]+"_"+"1"
+video_name = activities[idx]+"_"+"6"
 
 training_path = os.path.join(training_dir, activities[idx])
 if activities[idx] not in os.listdir(training_dir):
@@ -182,9 +182,10 @@ def SensorApp():
 
 
         if (result):
-            # cv2.imshow("frame", frame)
-            # cv2.waitKey(5)
+            cv2.imshow("frame", frame)
+            cv2.waitKey(5)
             out.write(frame)
+
 
         frame_count += 1
 

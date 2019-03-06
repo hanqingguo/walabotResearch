@@ -16,6 +16,7 @@ def filter(model, inputs):
     return result
 
 def outputMap(output):
+
     if output.item() == 0:
         print("bad")
         return False
