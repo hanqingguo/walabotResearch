@@ -106,7 +106,7 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
         #print(random_order_list, video_dir)
         # Each Epoch Iterate a whole dataset
         for value in random_order_list:
-            print(value)
+            #print(value)
             [cls, video] = value.split()
             selected_video = os.path.join(video_dir, cls, video)
             inputs = getFeature2(selected_video, CNN_model, setting['cut_frame'])
@@ -128,16 +128,11 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
                 print("output is: \n{}\n"
                       "pred is: \n{}\n"
                       "class is: \n{}\n".format(output, pred,classTensor.item()))
-                if (classTensor.item()==0):
-                    result = torch.zeros(1,6)
-                else:
-                    result = torch.ones(1,6)
-                result = result.squeeze(0)
-                result = result.to(device)
 
-                # if (pred.item() == classTensor.item()):
-                #     correct_count += 1
-                loss = criterion(output, result.long())
+
+                if (pred.item() == classTensor.item()):
+                    correct_count += 1
+                loss = criterion(output, classTensor.long())
                 loss.backward()
                 optimizer.step()
 
@@ -158,6 +153,8 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
     print(best_acc)
     x = np.arange(len(epoch_loss_list))
     plt.plot(x, epoch_loss_list)
+    plt.xlabel("iteration")
+    plt.ylabel("loss")
     plt.show()
 
     return model
@@ -169,11 +166,11 @@ if __name__ == "__main__":
     # /home/hanqing/walabot_research/python
     data_dir = 'cut_dataset'
     setting = {
-                'sequence_num': 10,
+                'sequence_num': 8,
                 'hidden_size': 100,
                 'num_layers': 1,
                 'num_directions': 1,
-                'num_features': 512,
+                'num_features': 64,
                 'cut_frame': 6
               }
 
@@ -183,9 +180,9 @@ if __name__ == "__main__":
     model = model.to(device)
 
     criterion = nn.NLLLoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.2, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
-    trained_model = train_model(model,criterion,optimizer, exp_lr_scheduler, current_dir, data_dir,setting,classTable,50)
+    trained_model = train_model(model,criterion,optimizer, exp_lr_scheduler, current_dir, data_dir,setting,classTable,100)
 
 
 
