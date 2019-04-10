@@ -125,9 +125,9 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
                 classTensor = classTensor.to(device)
 
 
-                print("output is: \n{}\n"
-                      "pred is: \n{}\n"
-                      "class is: \n{}\n".format(output, pred,classTensor.item()))
+                # print("output is: \n{}\n"
+                #       "pred is: \n{}\n"
+                #       "class is: \n{}\n".format(output, pred,classTensor.item()))
 
 
                 if (pred.item() == classTensor.item()):
