@@ -125,9 +125,9 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
                 classTensor = classTensor.to(device)
 
 
-                # print("output is: \n{}\n"
-                #       "pred is: \n{}\n"
-                #       "class is: \n{}\n".format(output, pred,classTensor.item()))
+                print("output is: \n{}\n"
+                      "pred is: \n{}\n"
+                      "class is: \n{}\n".format(output, pred,classTensor.item()))
 
 
                 if (pred.item() == classTensor.item()):
@@ -174,11 +174,11 @@ if __name__ == "__main__":
                 'cut_frame': 6
               }
 
-    classTable = {'walk': 0, 'still':1}
+    classTable = {'walk': 0, 'still':1, 'fall_down':2}
     model = RNN(input_size=setting['num_features'], hidden_size=setting['hidden_size'],
                 num_layers=setting['num_layers'], num_class=len(classTable))
     model = model.to(device)
-
+    model.load_state_dict(torch.load("../python/rnn_weight"))
     criterion = nn.NLLLoss()
     optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)

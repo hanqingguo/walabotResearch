@@ -2,11 +2,11 @@ import cv2
 import os
 
 
-data = {"activity":"walk",
-        "video_name":"walk_0.avi",
-        "cut_from": 50,
+data = {"activity":"fall_down",
+        "video_name":"fall_down_1.avi",
+        "cut_from": 14,
         "cut_length": 6,
-        "out_idx": "4"
+        "out_idx": "0"
         }
 fourcc = cv2.VideoWriter_fourcc(*'MJPG')
 cur_dir = os.path.dirname(os.path.realpath(__file__))
@@ -23,7 +23,7 @@ out_dataset = os.path.join(root_path, out_dataset_name)
 
 video_dataset = os.path.join(dataset, data["activity"])
 video_path = os.path.join(video_dataset, data["video_name"])
-out_name = data["video_name"][:-4]+"_cut4.avi"
+out_name = data["video_name"][:-4]+"_cut5.avi"
 print(out_name)
 
 out_video_dataset = os.path.join(out_dataset, data["activity"])
