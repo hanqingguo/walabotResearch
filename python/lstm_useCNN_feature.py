@@ -125,9 +125,9 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
                 classTensor = classTensor.to(device)
 
 
-                print("output is: \n{}\n"
-                      "pred is: \n{}\n"
-                      "class is: \n{}\n".format(output, pred,classTensor.item()))
+                # print("output is: \n{}\n"
+                #       "pred is: \n{}\n"
+                #       "class is: \n{}\n".format(output, pred,classTensor.item()))
 
 
                 if (pred.item() == classTensor.item()):
@@ -174,7 +174,7 @@ if __name__ == "__main__":
                 'cut_frame': 6
               }
 
-    classTable = {'walk': 0, 'still':1, 'fall_down':2}
+    classTable = {'walk': 0, 'still':1, 'fall_down':2, 'stand_up':3}
     model = RNN(input_size=setting['num_features'], hidden_size=setting['hidden_size'],
                 num_layers=setting['num_layers'], num_class=len(classTable))
     model = model.to(device)

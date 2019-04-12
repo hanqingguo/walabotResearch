@@ -3,8 +3,8 @@ import os
 
 
 data = {"activity":"fall_down",
-        "video_name":"fall_down_1.avi",
-        "cut_from": 14,
+        "video_name":"fall_down_3.avi",
+        "cut_from": 60,
         "cut_length": 6,
         "out_idx": "0"
         }
@@ -23,7 +23,9 @@ out_dataset = os.path.join(root_path, out_dataset_name)
 
 video_dataset = os.path.join(dataset, data["activity"])
 video_path = os.path.join(video_dataset, data["video_name"])
-out_name = data["video_name"][:-4]+"_cut5.avi"
+# comment below line only cut stand_up category
+# out_name = data["video_name"][:-4]+"_cut5.avi"
+out_name = "stand_up_"+"_cut5.avi"
 print(out_name)
 
 out_video_dataset = os.path.join(out_dataset, data["activity"])
