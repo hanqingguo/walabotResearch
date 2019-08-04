@@ -30,7 +30,7 @@ def getFeature(input_video, model_ft, num_feature, cut_frame):
     device = torch.device("cuda:0")
     cap = cv2.VideoCapture(input_video)
     n = 0
-    features = torch.rand(1, num_feature)       # will be delete this feature at return
+    features = torch.rand(1, num_feature)       # will be deleted this feature at return
     features = features.to(device)
 
     while (cap.isOpened()) and n<cut_frame:

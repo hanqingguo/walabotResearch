@@ -5,6 +5,7 @@ import torch.optim as optim
 from python.utils import *
 from python.cnn_model import *
 
+
 """
 This script takes in multiple frames and output 1 label
 
@@ -62,8 +63,8 @@ class RNN(nn.Module):
         c_0 = torch.randn(self.num_layers, 1, self.hidden_size)
         h_0 = nn.init.orthogonal_(h_0)
         c_0 = nn.init.orthogonal_(c_0)
-        h_0 = h_0.to(device)
-        c_0 = c_0.to(device)
+        # h_0 = h_0.to(device)
+        # c_0 = c_0.to(device)
         out, _ = self.lstm(inputs,(h_0,c_0))
         out = self.classifier(out)
         out = out[-1, :, :]
@@ -103,7 +104,7 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
 
         running_loss = 0.0
         random_order_list, video_dir = video_loader(current_dir, data_dir)
-        #print(random_order_list, video_dir)
+        # print(random_order_list, video_dir)
         # Each Epoch Iterate a whole dataset
         for value in random_order_list:
             #print(value)
@@ -125,9 +126,9 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
                 classTensor = classTensor.to(device)
 
 
-                # print("output is: \n{}\n"
-                #       "pred is: \n{}\n"
-                #       "class is: \n{}\n".format(output, pred,classTensor.item()))
+                print("output is: \n{}\n"
+                      "pred is: \n{}\n"
+                      "class is: \n{}\n".format(output, pred,classTensor.item()))
 
 
                 if (pred.item() == classTensor.item()):
@@ -137,6 +138,7 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
                 optimizer.step()
 
             running_loss += loss.item()
+        exp_lr_scheduler.step()
         epoch_loss = running_loss/ len(random_order_list)
         epoch_acc = correct_count/ len(random_order_list)
         epoch_loss_list.append(epoch_loss)
@@ -146,7 +148,7 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
             print("save best ")
             best_acc = epoch_acc
             best_model_wts = copy.deepcopy(model.state_dict())
-            save_path = '../python/rnn_weight'
+            save_path = '../python/rnn_weight_lr001stepsize30gamma0.4'
             torch.save(model.state_dict(), save_path)
 
     model.load_state_dict(best_model_wts)
@@ -179,10 +181,13 @@ if __name__ == "__main__":
                 num_layers=setting['num_layers'], num_class=len(classTable))
     model = model.to(device)
     model.load_state_dict(torch.load("../python/rnn_weight"))
+    print("################################################################")
+    print("############################## Load Parameters##################")
+    print("################################################################")
     criterion = nn.NLLLoss()
     optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
-    exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
-    trained_model = train_model(model,criterion,optimizer, exp_lr_scheduler, current_dir, data_dir,setting,classTable,100)
+    exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.4)
+    trained_model = train_model(model,criterion,optimizer, exp_lr_scheduler, current_dir, data_dir,setting,classTable,300)
 
 
 
