@@ -59,12 +59,13 @@ class RNN(nn.Module):
         self.classifier = nn.Linear(hidden_size, num_class)
 
     def forward(self, inputs):
+        device = torch.device("cuda:0")
         h_0 = torch.randn(self.num_layers, 1, self.hidden_size)
         c_0 = torch.randn(self.num_layers, 1, self.hidden_size)
         h_0 = nn.init.orthogonal_(h_0)
         c_0 = nn.init.orthogonal_(c_0)
-        # h_0 = h_0.to(device)
-        # c_0 = c_0.to(device)
+        h_0 = h_0.to(device)
+        c_0 = c_0.to(device)
         out, _ = self.lstm(inputs,(h_0,c_0))
         out = self.classifier(out)
         out = out[-1, :, :]
@@ -93,6 +94,10 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
     ori_model = models.resnet18(pretrained=True)
     CNN_model = CNN(ori_model)
     CNN_model = CNN_model.to(device)
+
+    CNN_PATH = '../python/CNN_Training'
+    torch.save(CNN_model.state_dict(), CNN_PATH)
+
     best_acc = 0
 
 
@@ -148,7 +153,7 @@ def train_model(model, criterion, optimizer, exp_lr_scheduler,current_dir, data_
             print("save best ")
             best_acc = epoch_acc
             best_model_wts = copy.deepcopy(model.state_dict())
-            save_path = '../python/rnn_weight_lr001stepsize30gamma0.4'
+            save_path = '../python/rnn_weight_lr001stepsize30gamma0.4-1'
             torch.save(model.state_dict(), save_path)
 
     model.load_state_dict(best_model_wts)
@@ -180,7 +185,7 @@ if __name__ == "__main__":
     model = RNN(input_size=setting['num_features'], hidden_size=setting['hidden_size'],
                 num_layers=setting['num_layers'], num_class=len(classTable))
     model = model.to(device)
-    model.load_state_dict(torch.load("../python/rnn_weight"))
+    #model.load_state_dict(torch.load("../python/rnn_weight"))
     print("################################################################")
     print("############################## Load Parameters##################")
     print("################################################################")
