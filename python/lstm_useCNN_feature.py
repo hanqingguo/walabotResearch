@@ -32,7 +32,7 @@ class CNN(nn.Module):
         self.layer4 = nn.Sequential(*list(ori_model.layer4.children()))
         self.maxpool1 = nn.MaxPool2d(kernel_size=7, stride=1, padding=0)
         #self.avgpool = nn.AvgPool2d(kernel_size=7, stride=1, padding=0)
-        self.fc = nn.Linear(512, 64)
+        self.fc = nn.Linear(512, 64) 
 
     def forward(self, x):
         x = self.conv1(x)
@@ -47,7 +47,7 @@ class CNN(nn.Module):
         x = self.maxpool1(x)
         x = x.view(-1,512)
         x = self.fc(x)
-        #x = self.avgpool(x)
+        # x = self.avgpool(x)
         return x
 
 class RNN(nn.Module):
