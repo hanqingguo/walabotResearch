@@ -1,5 +1,10 @@
 *.idea/
 *.ipynb_checkpoints/
 *.pyc
-
+python/testThing/
+training_backup/
+cut_dataset_backup/
+test_dataset/
+training/
+training_backup/
 cpp/
